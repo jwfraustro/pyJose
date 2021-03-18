@@ -1,0 +1,248 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction: Getting Started
+</title>
+<!-- $Log: starting.html,v $
+<!-- Revision 3.1  2004/07/21 19:20:28  jfd28
+<!-- corrected typo
+<!--
+<!-- Revision 3.0  2004/07/08 20:08:00  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.1  2004/07/08 19:15:26  jfd28
+<!-- Initial CVS
+<!-- -->
+</head>
+<body>
+
+<h2>Getting Started</h2>
+
+<a href="images/frame1.jpg"><img src="images/frame1small.jpg"></a>
+<img src="images/plot1.jpg"></a><br>
+<a href="images/frame2.jpg"><img src="images/frame2small.jpg"></a>
+<img src="images/plot2.jpg"></a><br>
+<b>Figure 1.</b> The input frames and result plots from the
+testoptextr procedure.<br>
+
+<h3>Preparing Data</h3>
+
+The most straightforward use of the package requires six inputs: a
+data image, an initial variance estimate, the gain and read noise of
+the array, and pixel locations bounding the spectrum in the spatial
+direction. The data image is the object frame from which you wish to
+extract the spectrum. The spectrum must run in the vertical direction,
+and lines of constant wavelength are assumed to be parallel to the
+horizontal direction.  The initial variance estimate is an array of
+the same size as the data image, but containing each pixel's variance
+estimate.  Horne suggests
+<p>
+		variance = abs(Data) / Gain + ReadNoise ^ 2
+<p>
+as a good estimate, where gain is in units of electrons per data
+number (EPADU) and ReadNoise is in units of electrons.  The spatial
+bounds are pixel locations in the horizontal direction. Only data
+between the bounds contribute to the final spectrum.  All pixels in
+the vertical direction contribute to the spectrum.  The bounds should
+be set widely because the algorithm minimizes the influence of noisy
+pixels far from the peak of the profile.
+<p>
+If part of your preprocessing is sky subtraction (e.g., in the
+infrared), set skyvarim and rnsky to the sky variance image and sky
+read noise, respectively.  These values will be added to the variance
+image as it is refined to reflect the increase in noise attributed to
+sky subtraction.
+<p>
+The importance of an accurate variance image can not be overstressed.
+The variance image is used to calculate which pixels are off because
+of noise, and which are cosmic rays.  It is also used to weight the
+pixels for the final optimal extraction.  To accuratly predict the
+noise of the data, the skyvarim must include noise estimates for all
+pre-processing steps that might introduce noise.  Any noise source
+must be included except read noise for the data image and photon noise
+from the calculated background and object spectrum.  If the data have
+additional noise sources that are not represented, the routine will
+mask good pixels.  If it overestimates noise sources, cosmic rays can
+slip through, and the final spectrum will be inaccurate.
+<p>
+Trim out any bad regions where spectrum extraction is impossible, such
+high-variance or unilluminated areas.  If that is not possible, then
+mask off that area, or make sure the variance image is correspondingly
+high.  Otherwise the routine will incorrectly try to fit these data.
+
+<h3>Example/Test Data</h3>
+
+In the optspecextr/images directory there are four example FITS files.
+These files provide input for the following three example runs.  Run
+each of these tutorials from the optspecextr/images directory.
+<p>
+<b>1. Frame with flat background and perpendicular trace</b>
+<p>
+
+This is the most basic case. First, read the FITS file:
+<pre>
+	IDL> frame1 = readfits('ex1.fits', header1)
+</pre>
+Next, locate the read noise and gain levels for the CCD array.
+This FITS file contains that information in the header.
+<pre>
+	IDL> Q =  sxpar(header1, 'EPADU') 
+	IDL> rn = sxpar(header1, 'RDNOISE') / Q 
+</pre>
+Now, we need to select the object spectrum limits.  This can be done
+interactively using a plot of the frame.  The trace is perpendicular,
+so any row will do.
+<pre>
+	IDL> plot, frame1[*,0]
+	IDL> plot, frame1[200:300,0]
+</pre>
+It seems the spectrum spans columns 240 to 270.
+<pre>
+	IDL> x1 = 240
+	IDL> x2 = 270
+</pre>	
+Now we need to prepare the data and variance images.  Since there is
+no sky frame, the data image is the object frame.  The inital estimate
+for the variance image is easily calculated.
+<pre>
+	IDL> dataim = frame1
+	IDL> varim = abs(frame1) / Q + rn^2
+</pre>
+With all of the data now prepared, run optspecextr.
+<pre>
+	IDL> opspec1 = optspecextr(dataim, varim, rn, Q, x1, x2)
+	IDL> plot, opspec1
+</pre>	
+<a href="images/ex1.jpg"><img src="images/ex1small.jpg"></a>
+<img src="images/ex1plot.jpg"><br>
+<b>Figure 2.</b> Object frame and extracted spectrum from a simple frame.
+<p>
+<b>2. Object and Sky Frames</b>
+<p>
+	
+When working with infrared data where a sky frame is to be used for
+sky subtraction, that information needs to be passed on to the optimal
+extraction procedure.
+<p>
+The preparation is identical to Example 1.
+<pre>
+	IDL> objframe2 = readfits('ex2obj.fits', objheader2)
+	IDL> skyframe2 = readfits('ex2sky.fits', skyheader2)
+	IDL> Q =     sxpar(objheader2, 'EPADU') 
+	IDL> rn =    sxpar(objheader2, 'RDNOISE') / Q 
+	IDL> rnsky = sxpar(skyheader2, 'RDNOISE') / Q 
+	IDL> x1 =    240
+	IDL> x2 =    270
+</pre>
+The data image is object frame - sky frame.  An additional sky
+variance image must also be created.  The initial variance estimate
+must reflect the additional image processing step.
+<pre>
+	IDL> dataim = objframe2 - skyframe2
+	IDL> skyvar = abs(skyframe2) / Q + rnsky^2
+	IDL> varim =  abs(skyframe2 + objframe2) / Q + rnsky^2 + rn^2
+</pre>
+The call for optspecextr uses the SKYVARIM keyword:
+<pre
+	IDL> opspec2 = optspecextr(dataim, varim, rn, Q, x1, x2, $
+	                           skyvar=skyvar)
+	IDL> plot, opspec2
+</pre>
+<a href="images/ex2obj.jpg"><img src="images/ex2objsmall.jpg"></a>
+<a href="images/ex2sky.jpg"><img src="images/ex2skysmall.jpg"></a>
+<img src="images/ex2plot.jpg"><br>
+<b>Figure 3.</b> Object and sky frames, with resulting spectrum.
+<p>
+<b>3. Frame with Curved Trace</b>
+<p>
+A frame with a curved trace cannot fit the profile using a polynomial
+fit along the wavelength dimension because the trace intercepts some
+columns more than once and is poorly fit by a polunomial.  Instead try
+either the boxcar filter or Gaussian fit.
+<p>
+The preparation begins as above:
+<pre>
+	IDL> frame3 = readfits('ex3.fits', header3)
+	IDL> Q =  sxpar(header3, 'EPADU') 
+	IDL> rn = sxpar(header3, 'RDNOISE') / Q 
+</pre>
+However, the curved trace makes setting spectrum limits more
+difficult.  Take a look at the frame to get the general idea.
+<pre>
+	IDL> tv, frame3
+</pre>	
+The minimum occurs and the top and bottom of the frame, while the
+maximum occurs about halfway down the frame.
+<pre>
+	IDL> plot, frame3[200:300,0]
+	IDL> plot, frame3[200:300,255]
+	IDL> plot, frame3[200:300,511]
+</pre>	
+It spans from about 240 to 280.
+<pre>
+	IDL> x1 = 240
+	IDL> x2 = 280
+</pre>	
+Now run optspecextr with either the FITGAUSS or FITBOXCAR keyword.
+<pre>
+	IDL> dataim = frame3
+	IDL> varim = abs(frame3) / Q + rn^2
+	IDL> opspec3gauss = optspecextr(dataim, varim, rn, Q, x1, x2, $
+	                                /fitgauss)
+	IDL> dataim = frame3
+	IDL> varim = abs(frame3) / Q + rn^2
+	IDL> opspec3rsa = optspecextr(dataim, varim, rn, Q, x1, x2, $
+	                              /fitboxcar)
+</pre>
+<a href="images/ex3.jpg"><img src="images/ex3small.jpg"></a><br>
+<img src="images/ex3gaussplot.jpg">
+<img src="images/ex3rsaplot.jpg"><br>
+<b>Figure 4.</b> Exctraction using FITGAUSS and FITBOXCAR
+<p>
+<b>4. Straightening the Trace</b>
+<p>
+A curved frame may also be corrected using the straightening.
+This technique upsamples the data frame by 7 pixels, shifts each row
+by an estimated center correction.  Then the usual fitting methods can
+be used to fit the expanded data.  Before use the profile is
+downsampled.
+<p>
+The preparation begins just like before.
+<pre>
+	IDL> frame4 = readfits('ex4.fits', header4)
+	IDL> Q =  sxpar(header4, 'EPADU') 
+	IDL> rn = sxpar(header4, 'RDNOISE') / Q 
+</pre>
+In order to show the correction more clearly this frame is only curved
+in the x direction.  The shift4.fits file contains the shift amount
+<pre>
+	IDL> traceact = readfits('shift4.fits')
+        IDL> plot, traceact
+</pre>
+	It seems to span from 235 to 270
+<pre>
+	IDL> x1 = 235
+	IDL> x2 = 270
+</pre>
+Now run optspecextr with adjfunct keyword equal to adjgauss.  This
+will tell the program to send the data frames to adjgauss before
+smoothing the profile.  Adjparms.centerest returns the estimated shift
+amount.  With the expantion, straightening may take much longer than
+other techniques.
+<pre>
+	IDL> dataim = frame4
+	IDL> varim = abs(frame4) / Q + rn^2
+        IDL> adjfunc = adjgauss
+	IDL> opspec4 = optspecextr(dataim, varim, rn, Q, x1, x2, $
+	                           adjfunc=adjfunc, adjparms=adjparms)
+        IDL> plot, adjparms.centerest
+        IDL> plot, (adjparms.centerest - 4) - traceact
+</pre>
+<img src="images/ex4shift.jpg"><br>
+<b>Figure 5.</b> Comparison between actual center shift and estmated.
+<p>
+
+</body>
+</html>

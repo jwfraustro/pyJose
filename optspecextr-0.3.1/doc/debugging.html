@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction: Fine-Tuning, 
+Progress Reports, Run-Time Plots</title>
+<!-- $Log: debugging.html,v $
+<!-- Revision 3.0  2004/07/08 20:07:59  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.1  2004/07/08 19:16:00  jfd28
+<!-- initial CVS
+<!-- -->
+</head>
+<body>
+
+<h2>Fine-Tuning, Progress Reports, Run-Time Plots</h2>
+
+The package depends on many parameters, and it is a rare analysis that
+"just works" without some fine tuning, particularly in the threshhold
+levels for bad pixel rejection.  It is a good idea to start with
+extremely high threshhold levels (100 standard deviations or more) to
+get some initial spectra, and then to bring the levels down to levels
+that work better.  Few datasets are so well flattened and consistent
+that a few-standard-deviation threshhold works, and rejecting too many
+bad pixels causes the fitting routines to fail in dramatic fashion.
+The PLOTTYPE and VERBOSE keywords can assist in setting the various
+parameters and in diagnosing problems.
+<p>
+There are four different types of plots that can be shown while the
+program is running:
+<li>PLOTTYPE=1 will show all of the frames created
+during execution of the program, along with the optimal and standard
+spectra.  This will allow the user to tell if a good extraction took
+place. In one window, 2-4 plots are set to the screen giving the
+standard extracted spectrum, the optimally extracted spectrum.  If
+adjgauss.pro is used, it will also plot the width and centers found
+during the Gaussian fitting.  In the second window the final data
+images are shown.  First there is the original data frame.  Next, the
+Background image from the background fitting phase.  Third, the
+Profile from the profile fitting phase. Fourth, the final variance
+image.  Next the masks created during each phase are shown in the
+following order: Background mask, Adjustment function mask (if
+applicable), the profile fitting mask, and extraction mask.  At the
+top of every image is the 2% and 98% percentile for each frame,
+representing the white and the dark colors.  For the masks, it shows
+the number of pixels masekd off for the frame.
+<li>PLOTTYPE=2 will show vectors sent to procvect for processing.
+Depending on the type of processing this would include the data,
+variance, background, sky variance, input mask and spectrum or profile.
+<li>PLOTTYPE=3 will show plots for each iteration of each column
+or row in the various bad-pixel rejection routines.  The top window
+shows the data vector plotted with the estimated vector.  When
+fitting the estimated vector is the fit.  During extraction it is the
+extracted spec times the profile.  The bottom window shows the number
+of standard devations the actual data is off from the expected data.
+<li>PLOTTYPE=4 will show a shaded surface with the recently fitted
+data against the soon to be fit data.
+<p>
+The VERBOSE keyword controls the level of printed output and allows
+debugger-like access to the running program.  The default, VERBOSE=0,
+displays only fatal errors.  Each level of VERBOSE does all previous
+actions plus a new one for that level. With VERBOSE=1, it will collect
+statistics on the execution of the program, and if neccissary print
+them on a single line at the conclusion.  If VERBOSE=2, it will tell
+the user when the program begins fitting the background, fitting the
+profile, and extracting the spectrum.  If VERBOSE=3, it will print
+warnings if there are problems fitting the data.  VERBOSE=4 is
+deprecated.
+<p>
+VERBOSE=5 stops exectution during the background- and profile-fitting
+sections of the algorithm.  Exectution stops right before entering the
+procvect routine (which actually does the fitting) and triggers
+procvect to stop after every iteration of the fit.  When VERBOSE=5, it
+will also plot PLOTTYPE 1, 2, 3 and 4 plots.  When stopped, the IDL
+executive command ".continue" or ".c" will continue execution until
+the next stop is encountered.  The user may change the value of
+VERBOSE when execution is stopped, may examine, display, or change
+other program values, etc.
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction Package for IDL</title>
+<!-- $Log: index.html,v $
+<!-- Revision 3.0  2004/07/08 20:08:00  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.1  2004/07/08 19:15:43  jfd28
+<!-- initial CVS
+<!-- -->
+</head>
+<body>
+<h1>
+	Optimal Spectrum Extraction Package for IDL
+</h1>
+<p>
+	Design, supervision, contact:<br>
+		Dr. Joseph Harrington<br>
+		326 Space Sciences Building<br>
+		Cornell University<br>
+		Ithaca, NY 14853-6801<br>
+		jh@oobleck.astro.cornell.edu<br>
+<p>
+	Programmers:<br>
+		John Dermody (Cornell)	Version 0.3.0 	08 Jul 04<br>
+                Dara Zeehandelaar (Cornell)                          
+<p>
+<h2>Overview</h2> 
+This package extracts a spectrum from a reduced spectrograph data
+frame using the optimal algorithm described in <a
+href="horne-1986-apj-optspecext.pdf"> "An Optimal Extraction Algorithm
+for CCD Spectroscopy" </a> (K. Horne, 1986, <i>PASP</i>
+<b>98</b>:609-617).  The initial flattening and bias subtraction are
+to be done outside the package, along with any sky subtraction and
+calculations of the initial variance estimates.  The base procedure
+fits the background, generates a profile estimate, masks cosmic rays,
+and extracts the optimal spectrum.  Extensions to the paper's
+algorithm include Gaussian and running average fits for the profile
+construction.  There is also an option to straighten the data trace
+before estimating the profile.
+
+<h2>Installation</h2>
+Copy the optspecextr directory to your IDL function directory, where
+it can be seen by the IDL program.
+<p>
+To test your installation, change into a directory where you can write
+files and run testoptextr.  The following four lines should appear on
+your screen if things are working normally:
+<p>
+<pre>
+	Creating simple test data
+	Creating default test data
+	PASS - Simple Frame
+	PASS - Default Frame
+</pre>
+<h2>Package Contents</h2>
+<pre>
+	README	- the place to start
+	doc	- directory containing HTML-format documentation
+	images	- directory containing example and test images
+	*.pro   - IDL functions
+</pre>
+
+<a href="algorithm.html">Algorithm and Function List</a><br>
+<a href="starting.html">Getting Started</a><br>
+<a href="debugging.html">Fine-Tuning, Progress Reports, Run-Time Plots</a><br>
+<a href="adjfuncs.html">Trace Straightening Tricks</a><br>
+<a href="faq.html">Frequently-Asked Questions</a><br>
+
+</body>
+</html>

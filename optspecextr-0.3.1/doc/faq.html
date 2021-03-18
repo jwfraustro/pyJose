@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction: Frequently-Asked Questions</title>
+<!-- $Log: faq.html,v $
+<!-- Revision 3.0  2004/07/08 20:07:59  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.1  2004/07/08 19:12:21  jfd28
+<!-- Initial CVS
+<!-- -->
+</head>
+<body>
+
+<h2>Frequently-Asked Questions</h2>
+
+Q: Why is everything in double precision when the input data is most
+likely single precision?
+<p>
+A: The short answer is it prevents a systematic bias in the final
+output.  The cause of this bias was traced to an error in floating
+point representation of the profile image.  When a perfect (no noise,
+straight trace, no bad pixels, ...) image was tested, there was
+symetric error at machine level precision in the profile image created
+by looping procvect.pro.  However, as this image was scaled to make
+sure each wavelength summed to 1, the error became off-center.  This
+error was componded in later steps and eventually showed up in the
+final spectrum.  There was no way to scale a floating point array
+without this occuring, so instead everything is done in double
+precision.
+<p>
+Q: Help! The program keeps masking all of my data points. What's wrong?
+<p>
+A: The probable answer lies in the variance image creation.  The
+routine uses and iterative sigma-cliping calculation using: Residual =
+(Data - Background - Spectrum*Profile)^2 / Variance If the variance
+estimate is wrong, the procvect routine can end up clipping way too
+many or too few pixels easily.  The background fiting and the first
+pass of the profile fitting use the inital variance estimates that are
+passed in.  However, each subsequent pass in profile fitting, and in
+the optimal extraction iteration, the variance image used is
+recalculated based on: Variance = Readnoise^2 + Abs(Spectrum*Profile +
+Background) / EPADU Therefore, if your estimates for read noise or
+gain are off, each revisted estimate will be inaccurate.  The
+sigma-clipping routine is sensitve to both rdnoise and gain. If
+background pixels are wrongly masked, the readnoise is proabably off.
+If the high-intensity pixels are masked, then it is probably the gain.
+<p>
+Another problem could stem from inaccurate estimation of the fit.  If
+the profile image is changing more rapidly than can be modeled by a
+third degree polynomial, the degree must be increased, or a different
+fit used.  Similarly, if skylines are curved too much (more than three
+pixels spell distator for polynomial fitting) the background fitting
+routine won't be able to model the background.
+<p>
+Q: Why isn't the answer to my question listed here?
+<p>
+A: Because you haven't sent it to us.  Email to 
+<a href="mailto:jh@oobleck.astro.cornell.edu">jh@oobleck.astro.cornell.edu</a>
+
+</body>
+</html>

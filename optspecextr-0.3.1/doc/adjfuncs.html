@@ -1,0 +1,115 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction: Trace Straightening Tricks</title>
+<!-- $Log: adjfuncs.html,v $
+<!-- Revision 3.0  2004/07/08 20:07:59  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.1  2004/07/08 19:16:30  jfd28
+<!-- initial CVS
+<!-- -->
+</head>
+<body>
+
+<h2>Trace Straightening Tricks</h2>
+
+<p>
+The package allows the user to adjust the data image as he or she
+needs prior to profile fitting.  For example, if the profile's trace
+is curved or changes quickly between rows, some sort of staightening
+may be used.
+<p>
+The polynomial and median fitting functions assume that the profile is
+slowly varying in terms of wavelength. If this is not the case a large
+number of pixels can be erroneously masked off during the profile
+fitting and optimal extraction.
+<p>
+The basic optimal spectrum extraction functions are designed to work
+without knowledge of what the adjustment functions do to the data.
+The package calls the function passed in through ADJFUNC with the data
+frames it needs.  For convince, any options to the adjustment function
+are passed through ADJOPTIONS, which if more than one option is
+needed, can be a structure.  Likewise, ADJPARMS, which contains the
+parameters of the data array can also be a structure.  For simplicity,
+since not all adjustment functions need all of the information optimal
+extraction uses, that info is also passed through a structure.
+<p>
+Included in the optimal extraction package is ADJGAUSS, which uses
+Gaussian fitting to line up the centers and widths of the profile.  To
+use this technique on the data, call optspecextr with the ADJFUNC
+parmater equal to ADJGAUSS.  The options to adjgauss are held in the
+keyword ADJOPTIONS, which takes a structure.  Some cases to use
+adjgauss include:
+
+<h3>Correcting for Changing Profile Center or Width</h3>
+
+<b>Quickly varying center:</b> If the center of the profile changes
+quickly with wavelength, it might be possible to line up the centers
+using adjgauss.pro.  First set the ADJFUNC keyword to adjguass. Then
+pass in a structure with the tag CENTER = 1 to the ADJOPTIONS
+keyword:<br>
+<pre>
+	IDL> OptSpec = Optspecextr(Data, varim, rn, Q, x1, x2, adjfunc=adjgauss, $
+		adjoptions = {center:1})<br>
+</pre>
+<b>Quickly varying width:</b>  If the width of the profile changes
+quickly with wavelength then set the tag WIDTH = 1 in the ADJOPTIONS
+keyword.<br>
+<pre>
+	IDL> OptSpec = Optspecextr(Data, varim, rn, Q, x1, x2, adjfunc=adjgauss, $
+		adjoptions = {width:1})<br>
+</pre>
+<b>Slowly varying center:</b> If the center does move between the top
+and bottom of the CCD, it might be best to fit a polynomial to the
+centers and used that as the estimate of shift.  Set CENTERFIT = 1 in
+the ADJOPTIONS keyword to perform a polynomial fit to each row's shift
+amount. Set CENTERDEG to the appropriate polynomial fitting degree
+(usually 2-4) and CENTER tag to 1 
+<pre>
+	IDL> OptSpec = Optspecextr(Data, varim, rn, Q, x1, x2, adjfunc=adjgauss, $
+		adjoptions = {center:1, centerfit:1, centerdeg:2})<br>
+</pre>
+
+<h3>Writing Your Own Adjustment Function</h3>
+If your data requires a different adjustment to the data before fitting
+the profile you can write your own function.  The specs of your driver
+function:<br> 
+<center>OutArray = ADJFUNC(InArray, OptInfo, AdjParms=AdjParms,
+AdjOptions=AdjOptions, Revert=Revert)</center> 
+OutArray: A data cube where each slice is a modifed image <br> 
+InArray: A data cube where each slice is an image to be modified.<br>
+OptInfo: A structure with all the Optimal Extraction Package's information on
+the data array up to the begining of profile fitting<br> 
+AdjParms: A varaible where internal data can be saved in order to be used when
+it is necessary to convert the fitted array back into the origional shape.<br>
+AdjOptions: A variable where options needed for your function can be passed
+through.<br> 
+Revert: If set, InArray contains modified images and the function should
+revert them to the origional size and shape.<br> 
+<p>
+To use your function set the ADJFUNC keyword to the name of your function
+and the ADJOPTIONS keyword to any options your function accepts.  Prior to
+profile fitting and after background fitting the optimal extraction package
+with create a data cube by stacking the data image, variance image, background
+image, and sky variance image. It will pass this data through InArray.  It
+then expects to find in OutArray a stack of the data image, varaince image,
+background image, and sky variance image in the same order passed in.  The
+user defined function does not need to worry about what is in the arrays, only
+that they are stacked through the Z dimension.  
+<p>
+Any information about the data array is saved in OptInfo:<br>
+.Dataim: The data image<br>
+.Varim: The variance image<br>
+.Bgim: The fitted background image<br>
+.Skyvar: The sky variance image<br>
+.Q: The gain of the array<br>
+.V0: The readnoise of the array<br>
+.X1: The start pixel for the profile image<br>
+.X2: The end pixel for the profile image<br>
+.Spec: The standard extracted spectrum<br>
+
+</body>
+</html>

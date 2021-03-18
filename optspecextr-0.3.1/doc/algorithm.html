@@ -1,0 +1,208 @@
+<html>
+<head>
+<title>Optimal Spectrum Extraction: Algorithm and Function List</title>
+<!-- $Log: algorithm.html,v $
+<!-- Revision 3.1  2004/07/21 19:17:00  jfd28
+<!-- added polyeval and keyword_defined
+<!--
+<!-- Revision 3.0  2004/07/08 20:07:59  jfd28
+<!-- Moving up to 3.0 (reflects this version anyway)
+<!--
+<!-- Revision 2.0  2004/07/08 20:05:25  jfd28
+<!-- Tagging all files to 2.0
+<!--
+<!-- Revision 1.2  2004/07/08 19:23:06  jfd28
+<!-- added in
+<!--
+<!-- Revision 1.1  2004/07/08 19:16:21  jfd28
+<!-- initial CVS
+<!-- -->
+</head>
+<body>
+
+<h2>Algorithm and Function List</h2>
+
+This package implements steps 3 through 8 of Horne's algorithm.  The
+user is responsible for steps 1 and 2. The steps and implementation
+follow.
+
+<li>Step 1: Initial image processing - The user is responsible.  This
+would include any sky subtraction or preprocessing. The package also
+requires the user to estimate the start and end x coordinate of the
+star's profile.
+
+<li>Step 2: Initial variance estimates - The user is responsible.
+Horne suggests (Reduced data)/Gain + (RMS read noise)^2.  To further
+estimate the variance the package needs to know the readnoise and gain
+of the array.  Also any preprocessing steps that add or reduce noise
+in the data need to be included in skyvar, which will be added to
+every varaince estimation.
+
+<li>Step 3: Fit sky background - fitbg.pro.  Before an accurate
+profile can be estimated any remaining background bias must be
+subtracted off. This function fits the background outside the
+horizontal extraction boundaries at each wavelength in the data.  It
+runs procvect.pro on each wavelength using the initial variance
+estimates as weights. It creates its own mask of bad pixels, using the
+user input mask as a start.
+
+<li>Step 4: Extract standard spectrum - stdspec.pro.  Sums each
+background-subtracted wavelength within the bounds.
+
+<li>Step 5: Construct spatial profile.
+
+<li>Step 6: Revise variance estimates - fitprof.pro.  Initially
+creates the spatial profile by (reduced - background) / (standard
+spectrum) Then uses procvect.pro on each column (which uses a sigma
+rejection scheme) with variance / spectrum^2 as weights.  The user can
+select to fit a polynomial to each column, a running average to each
+colum, or a Gaussian to each row.  The polynomial fit is default and
+the degree of fit can be user-defined.  A degree of 3 is default.  The
+running average fit actually uses a median filter when identifying bad
+pixels, then calculates a running average to return a profile.  The
+Gaussian fit is a single dimension Gaussian, so any background
+geometry not identified by the background fitting will be
+problematic. All values are then made positive, and each wavelength is
+normalized to 1.  
+
+<li>Step 7: Mask cosmic ray hits.  - Done at every stage 
+
+<li>Step 8: Extract optimal spectrum. - extrspec.pro After a profile
+and background (assumed to be perfect) are found extraction can occur.
+For each wavelength the spectrum is extracted and bad pixels are
+rejected using procvect, iterating until no bad pixels are found.  The
+optimal extraction achieves the highest possible signal to noise ratio
+by weighting the pixels proportional to the profile divided by the
+variance.  
+
+<li>Step 9: Iteration - The iteration scheme we used is suggested by
+Horne.  Iterate 3 by itself to find cosmic rays in the background
+section. Iterate 5 and 6 to find the spatial profile image, but do not
+use the bad pixel mask found in step 5 for the extraction. Rather,
+next iterate 6, 7, and 8 to mask cosmic rays and optimally extract the
+spectrum.
+
+<p>
+<h3>Functions in the package:</h3>
+
+
+The optimal extraction package:
+
+<pre>
+DRIVER                            optspecextr.pro
+                                 main driver routine
+                                          |
+                       --------------------------------------
+                       |                  |                 |
+VECTOR              fitbg.pro        fitprof.pro       extrspec.pro
+SETUP          background fiting    profile fitting   spectrum extraction
+                       |                  |                 |
+                       --------------------------------------
+                                          |
+VECTOR                               procvect.pro
+FITTING DRIVER                   bad pixel rejection
+                                          |
+                 -------------------------------------------------
+                 |              |                |               |
+VECTOR     polyfunc.pro   boxcarfunc.pro   gaussfunc.pro   extractspec.pro
+FITTING     polynomial    running average    Gaussian    spectrum extraction
+
+</pre>
+The included adjustment functions:
+
+<pre>
+                                  adjgauss.pro
+                                 driver routine
+                                        |
+                   ---------------------------------------
+                   |                                     |
+              findshift.pro                        sampleshift.pro
+             center and width                   geometry modification
+                   |      
+           ----------------------
+           |                    |
+      centermass.pro         procvect.pro
+       finds center      bad pixel rejection
+                                |
+                         gaussfunc.pro
+                          Gaussian fit
+
+</pre>
+<li>Optspecextr.pro: Main driver routine. Gets the background frame
+from fitbg, the standard spectrum from stdextr, the profile frame
+from fitprof and the optimal spectrum from extrspec.
+<p>
+<li>Fitbg.pro: Sends the data at each wavelength (row) to
+procvect.pro, using a polynomial fit and ignoring the data within the
+object limits. The resulting background fit is evaluated and
+subtracted from the input data.
+<p>
+<li>Fitprof.pro: Driver for spatial profile fitting.  The user may
+choose either a polynomial fit or a boxcar average along the spectral
+direction or a Gaussian fit along the spatial direction. The routine
+sets up the calculation and calls procvect.pro on each vector in the
+data, building a 2D frame with the results.  If the spectrum trace is
+curved more by more than 2 pixels or if it changes quickly, the data
+can be expanded and shifted prior to profile estimation by a user set
+function. Adjgauss.pro is included in the package for this purpose.
+<p>
+<li>Stdextr.pro: Calculates standard extraction, totaling each row
+within the spectrum bounds.
+<p>
+<li>Extrspec.pro: Runs procvect.pro on each row of constant
+wavelength, which optimally estimates the spectrum amplitude at that
+point and calculates the variance.
+<p>
+<li>Summaryopt.pro: Sends summary information to the screen for the
+user.
+<p>
+<li>Procvect.pro: Iteratively fits a function to a linear array,
+removing up to one extreme pixel per iteration until none are found.
+It begins by either fitting the non-masked data or optimally
+extracting the spectrum and subtracting the result from the input
+data.  The pixel with the largest residual (if it exceeds THRESH) is
+masked (marked as bad), and variances are recalculated.  The process
+repeats with the original data and the new mask until no bad pixels
+are found.  Finally, either the fit is evaluated at all values and
+returned or a final extraction is returned.
+<p>
+Functions ending in "func" may be given to procvect as an argument.
+<p>
+<li>Polyfunc.pro: Fits a polynomial of specified degree to the data
+vector divided by spectrum weighted inversely to the variance.
+<p>
+<li>Gaussfunc.pro: Fits a Gaussian to the data / spectrum weighted
+inversely to the variance.  If a Gaussian does not accuratly describe
+the data (because of a ray), if will try to fit it to median
+filtered data.
+<p>
+<li>Extractfunc.pro: Optimally extracts the spectrum at that row.
+<p>
+<li>Boxcarfunc.pro: Returns data / spectrum with a  median filter when
+searching for cosmic rays, then returns a running average to the data
+when all the bad pixels have been eliminated.
+<p>
+<li>Centermass.pro: Returns the center of mass for the data vector
+over the spectrum vector.
+<p>
+<li>Adjguass.pro: Given a stack of data frames and the optimal
+extraction info, shifts and expands the input frames so that the
+centers of the profile (and optionally widths) of the profile line up.
+<p>
+<li>Findshift.pro: Finds the center of the profile for each row in the
+data frame.
+<p>
+<li>Sampleshift.pro: Given a data frame and a coresponding in
+coordiante array, returns a data frame corespoding to the out
+coordinate array, formed from the in data frame.
+<p>
+<li>In.pro: Trivial function to test if an element is in an array
+<p>
+<li>Keyword_defined.pro: Trivial function to see in a variable is defined.
+<p>
+<li>Polyeval.pro: Evaluates polynomial coefficents
+<p>
+<li>Testoptextr.pro: Tests the installation of the package.  
+(Useful as example.)
+</body>
+</html>
