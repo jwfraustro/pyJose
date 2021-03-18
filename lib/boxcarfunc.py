@@ -1,5 +1,11 @@
+import numpy as np
+from scipy.signal import medfilt as median
+from scipy.ndimage.filters import uniform_filter1d as smooth
+from scipy.interpolate import interp1d as interpol
+from .excep import VectorLengthException
+
 """
-Function: box_car_func
+Function: boxcarfunc
 
 Description:
 	Function for fitting the data with a boxcar average or median fit.
@@ -35,6 +41,41 @@ Example:
 Modification History:
 	TODO
 
-	
 
 """
+
+def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
+	# Check inputs
+	nx = len(x_vals)
+
+	for vector in [data_v, var_v, spec_v]:
+		if len(vector) != nx:
+			raise VectorLengthException(vector, nx)
+
+	coeffv = [np.average(data_v / spec_v)]
+
+	# Fit Data
+	if not eval:
+		return median(data_v / spec_v, boxcar_hw * 2 + 1)
+
+	# Evaluate
+	if np.count_nonzero == 0:
+		return np.zeros(nx)
+
+	gv = spec_v.nonzero()
+
+	goodx = x_vals[gv]
+
+	estg = smooth(data_v[gv] / spec_v[gv], boxcar_hw * 2 + 1)
+	fiteval = np.zeros(nx)
+	bv = np.where(spec_v == 0)[0]
+	if len(bv) != 0:
+		badx = x_vals[bv]
+		estb_func = interpol(goodx, estg, kind='linear')
+		estb = estb_func(badx)
+		fiteval[badx] = estb
+
+	fiteval[goodx] = estg
+
+	return fiteval
+
