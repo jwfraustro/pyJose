@@ -1,0 +1,16 @@
+
+#TODO
+---
+data_frame: "./example/test1spec.fits"
+sky_frame: "./example/bg_frame.fits"
+spec_bound: [240, 270]
+
+
+
+# Adjust Gaussian Parameters
+adj_gauss:
+  - opt_info:
+      data_img: "./example/test1spec.fits"
+      var_img: "./example/test1variance.fits"
+      bg_img: "./example/bg_frame.fits"
+      bg_var_img: "./example/bg_var.fits"
