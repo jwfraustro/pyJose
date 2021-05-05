@@ -1,0 +1,229 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package "Extraction"{
+
+
+}
+
+package "Adjustment"{
+
+}
+
+
+class optspecextr {
+.. Inputs ...
++DATA
++VAR
++RNQ
++Q_val
++X1X2
+
+}
+
+class fitbg {
+-- Inputs --
++DATAIM
++X1X2
+-- Keywords --
++nobgfit
+.. Rows Passed to Procvect ..
++inmask
++varim
++skyvar
+.. Passed to Procvect ..
++bgdeg
++bthresh
++q_val
++v0
++bpct
+.. Debugging ..
++verbose
++plottype
++gotovect
++errvect
+}
+
+class fitprof{
+-- Inputs --
++dataim
++spec
++x1x2
++noproffit
++profdeg
++varim
++inmask
++profmask
++pthresh
++bgim
++q_val
++v0
++skyvar
++profres
++fitgauss
++fitboxcar
++boxcarhw
++gotovect
++verbose
++errvect
++bpct
++plottype
++difpmask
++adjfunc
++adjparms
++adjoptions
+}
+
+class extrspec{
+-- Inputs --
++dataim
++profim
++varim
++v0
++q_val
++x1x2
++bgim
++inmask
++opvar
++ethresh
++exres
++skyvar
++verbose
++gotovect
++errvect
++bpct
++plottype
++exmask
+}
+
+class procvect{
+-- Inputs --
++datav
+-- Keywords --
+.. Variance Calc ..
++bgv
++q_val
++v0
++skyvarv
++nopudate
+.. BP Reject ..
++crv
++thresh
++bpct
++absthresh
++errflag
+..Debugging..
++verbose
++plottype
++vectnum
+..Fitting..
++xvals
++func
++parm
++coeffv
++opvar
+}
+
+class polyfunc{
+}
+
+class boxcarfunc{
+}
+
+class gaussfunc{
+}
+
+class extractspec{
+}
+
+class adjgauss{}
+
+class findshift{}
+
+class sampleshift{}
+
+class centermass{}
+
+optspecextr::DATA -right-> fitbg::DATAIM
+optspecextr::X1X2 -right-> fitbg::X1X2
+optspecextr::bgdeg -right-> fitbg::bgdeg
+optspecextr::q_val -right-> fitbg::q_val
+optspecextr::v0 -right-> fitbg::v0
+optspecextr::inmask -right-> fitbg::inmask
+optspecextr::varim -right-> fitbg::varim
+optspecextr::bthresh -right-> fitbg::bthresh
+optspecextr::bgres -right-> fitbg::bgres
+optspecextr::errvect -right-> fitbg::errvect
+optspecextr::bgmask -right-> fitbg::bgmask
+optspecextr::skyvar -right-> fitbg::skyvar
+optspecextr::verbose -right-> fitbg::verbose
+optspecextr::nobgfit -right-> fitbg::nobgfit
+optspecextr::gotovect -right-> fitbg::gotovect
+optspecextr::bpct -right-> fitbg::bpct
+optspecextr::plottype -right-> fitbg::plottype
+
+optspecextr::dataim --> extrspec::dataim
+optspecextr::profim --> extrspec::profim
+optspecextr::varim --> extrspec::varim
+optspecextr::v0 --> extrspec::v0
+optspecextr::q_val --> extrspec::q_val
+optspecextr::x1x2 --> extrspec::x1x2
+optspecextr::bgim --> extrspec::bgim
+optspecextr::inmask --> extrspec::inmask
+optspecextr::opvar --> extrspec::opvar
+optspecextr::ethresh --> extrspec::ethresh
+optspecextr::exres --> extrspec::exres
+optspecextr::skyvar --> extrspec::skyvar
+optspecextr::verbose --> extrspec::verbose
+optspecextr::gotovect --> extrspec::gotovect
+optspecextr::errvect --> extrspec::errvect
+optspecextr::bpct --> extrspec::bpct
+optspecextr::plottype --> extrspec::plottype
+optspecextr::exmask --> extrspec::exmask
+
+optspecextr::dataim -left-> fitprof::dataim
+optspecextr::spec -left-> fitprof::spec
+optspecextr::x1x2 -left-> fitprof::x1x2
+optspecextr::noproffit -left-> fitprof::noproffit
+optspecextr::profdeg -left-> fitprof::profdeg
+optspecextr::varim -left-> fitprof::varim
+optspecextr::inmask -left-> fitprof::inmask
+optspecextr::profmask -left-> fitprof::profmask
+optspecextr::pthresh -left-> fitprof::pthresh
+optspecextr::bgim -left-> fitprof::bgim
+optspecextr::q_val -left-> fitprof::q_val
+optspecextr::v0 -left-> fitprof::v0
+optspecextr::skyvar -left-> fitprof::skyvar
+optspecextr::profres -left-> fitprof::profres
+optspecextr::fitgauss -left-> fitprof::fitgauss
+optspecextr::fitboxcar -left-> fitprof::fitboxcar
+optspecextr::boxcarhw -left-> fitprof::boxcarhw
+optspecextr::gotovect -left-> fitprof::gotovect
+optspecextr::verbose -left-> fitprof::verbose
+optspecextr::errvect -left-> fitprof::errvect
+optspecextr::bpct -left-> fitprof::bpct
+optspecextr::plottype -left-> fitprof::plottype
+optspecextr::difpmask -left-> fitprof::difpmask
+optspecextr::adjfunc -left-> fitprof::adjfunc
+optspecextr::adjparms -left-> fitprof::adjparms
+optspecextr::adjoptions -left-> fitprof::adjoptions
+
+fitbg::datav -right-> procvect::datav
+fitbg::varv -right-> procvect::varv
+fitbg::maskv -right-> procvect::maskv
+fitbg::crv -right-> procvect::crv
+fitbg::thresh -right-> procvect::thresh
+fitbg::xvals -right-> procvect::xvals
+fitbg::errflag -right-> procvect::errflag
+fitbg::q_val -right-> procvect::q_val
+fitbg::v0 -right-> procvect::v0
+fitbg::skyvarv -right-> procvect::skyvarv
+fitbg::verbose -right-> procvect::verbose
+fitbg::vectnum -right-> procvect::vectnum
+fitbg::func -right-> procvect::func
+fitbg::parm -right-> procvect::parm
+fitbg::bpct -right-> procvect::bpct
+fitbg::plottype -right-> procvect::plottype
+
+
+@enduml

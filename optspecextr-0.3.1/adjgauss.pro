@@ -32,8 +32,8 @@
 ;       .X2:       the end of the object's profile (nx-1)
 ;       .SPEC:     the standard extracted spectrum (total(dataim[x1:x2,*],1)
 ;       .BPCT:     The percentage of allowable bad pixels before halting (.5)
-;       .VERBOSE:  level of output to screen ([0, 0, 0, 0])
-;       .PLOTTYPE: the type of plot to output while running (0)
+;       .VERBOSE:  level of output to screen (0)
+;       .PLOTTYPE: the type of plot to output while running ([0, 0, 0, 0])
 ;
 ;
 ; OPTIONAL INPUTS:
