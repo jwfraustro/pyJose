@@ -1,7 +1,7 @@
-#TODO DOCS: optspecextr
+#TODO DOCS: optspecextr_source
 """
 Name:
-	optspecextr
+	optspecextr_source
 Purpose:
 	Data pipeline for image processing and optimal extraction.
 Category:
@@ -37,7 +37,7 @@ def optspecextr(config_file):
 	if RunConfig.VERBOSE == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
 
-	#TODO FUNC: optspecextr
+	#TODO FUNC: optspecextr_source
 	bgim = fitbg(data, x1, x2, q, v0, RunConfig)
 
 	# verbose = save_verbose

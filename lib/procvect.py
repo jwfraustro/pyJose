@@ -81,7 +81,7 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 
 	# if an absolute threshold is used, use that threshold. Else, square
 	# the sigma threshold so it can be used with variance calculations
-	# FIXME: optspecextr variable name changes
+	# FIXME: optspecextr_source variable name changes
 	# if RunConfig.BTHRESH:
 	# 	vthresh = RunConfig.BTHRESH
 	# else:
