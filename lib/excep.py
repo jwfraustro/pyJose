@@ -9,10 +9,9 @@ class VectorLengthException(Exception):
 	"""Exception raised if vector lengths are not equal.
 
 	Attributes:
-		vx      -- vector which caused the error
-		nx      -- number of elements expected
+		vx, nx      -- vectors being compared.
 	"""
 
 	def __init__(self, ax, bx):
-		self.message = "Vector of length %i does not match vector length of %i." % (len(ax), bx)
+		self.message = "Vector of %s does not match vector length of %s." % (ax, bx)
 		super().__init__(self.message)

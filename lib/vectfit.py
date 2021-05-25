@@ -20,6 +20,9 @@ Created on 5/25/2021$
 from math import exp
 from lib.excep import VectorLengthException, ParameterException
 import numpy as np
+from scipy.signal import medfilt as median
+from scipy.ndimage.filters import uniform_filter1d as smooth
+from scipy.interpolate import interp1d as interpol
 
 def gausseval(x, a, f=None, p=None):
 	# TODO gaussfunc docs
@@ -64,13 +67,13 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 	nx = len(xvals)
 
 	if nx != len(datav):
-		raise VectorLengthException(nx, datav)
+		raise VectorLengthException("x_vals", "data_v")
 	if nx != len(varv):
-		raise VectorLengthException(nx, varv)
+		raise VectorLengthException("x_vals", "var_v")
 	if nx != len(specv) and len(specv) != 1:
-		raise VectorLengthException(nx, specv)
+		raise VectorLengthException("x_vals", "spec_v")
 	if nx <= 4:
-		raise ParameterException("datav has less than 4 elements.")
+		raise ParameterException("data_v has less than 4 elements.")
 
 	# Evaluate Coefficients
 	if eval:
@@ -133,12 +136,6 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 
 	return
 
-
-from scipy.signal import medfilt as median
-from scipy.ndimage.filters import uniform_filter1d as smooth
-from scipy.interpolate import interp1d as interpol
-
-
 def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
 	# TODO boxcarfunc docs
 	"""
@@ -183,9 +180,12 @@ def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
 	# Check inputs
 	nx = len(x_vals)
 
-	for vector in [data_v, var_v, spec_v]:
-		if len(vector) != nx:
-			raise VectorLengthException(vector, nx)
+	if len(data_v) != nx:
+		raise VectorLengthException("data_v", "x_vals")
+	if len(var_v) != nx:
+		raise VectorLengthException("var_v", "x_vals")
+	if len(spec_v) != nx:
+		raise VectorLengthException("spec_v", "x_vals")
 
 	coeffv = [np.average(data_v / spec_v)]
 
@@ -247,7 +247,7 @@ def centermass(x_vals, data_v, var_v, spec_v):
 	nx = len(x_vals)
 
 	if len(data_v) != nx:
-		raise VectorLengthException(data_v, nx)
+		raise VectorLengthException("data_v", "x_vals")
 
 	multv = sum(data_v / spec_v)
 	return sum(x_vals * data_v / spec_v / multv)
@@ -278,9 +278,9 @@ def extractfunc(xvals, datav, varv, profv, eval, coeffv, opvar):
 	nx = len(datav)
 
 	if nx != len(profv):
-		raise VectorLengthException(nx, profv)
+		raise VectorLengthException("datav", "profv")
 	if nx != len(varv):
-		raise VectorLengthException(nx, varv)
+		raise VectorLengthException("datav", "varv")
 
 	# Always Extract
 
