@@ -30,9 +30,14 @@ Inputs:
 
 
 Outputs:
-	#TODO
+	#TODO adjgauss outputs
 
 History:
 
 Created on 4/17/2021$
 """
+
+def adjgauss():
+
+	#TODO adjgauss
+	return

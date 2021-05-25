@@ -1,9 +1,9 @@
-#TODO DOCS
+#TODO optspecextr docs
 """
 Name:
-
+	optspecextr
 Purpose:
-
+	Data pipeline for image processing and optimal extraction.
 Category:
 
 Calling Example:

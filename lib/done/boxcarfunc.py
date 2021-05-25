@@ -4,6 +4,7 @@ from scipy.ndimage.filters import uniform_filter1d as smooth
 from scipy.interpolate import interp1d as interpol
 from .excep import VectorLengthException
 
+#TODO boxcarfunc docs
 """
 Function: boxcarfunc
 

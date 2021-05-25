@@ -1,5 +1,6 @@
 from .excep import VectorLengthException
 
+#TODO centermass docs
 """
 Function: centermass
 

@@ -1,3 +1,4 @@
+#TODO polyeval docs
 """
 Name:
 	polyeval
@@ -31,16 +32,7 @@ import numpy as np
 
 def polyeval(coeffs, xvals):
 
-	degree = len(coeffs)
-	xvals = np.array(xvals)
 
-	polys = np.zeros(len(xvals))
-	polys[0] = coeffs[0]
-
-	if degree > 0:
-		for d in range(1, degree):
-			polys = polys + coeffs[d] * xvals ** d
-
-	return polys
+	return np.polyval(coeffs, xvals)
 
 
