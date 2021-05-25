@@ -1,4 +1,4 @@
-# TODO misc docs
+# TODO DOCS: misc
 """
 Name:
 	misc
@@ -19,7 +19,7 @@ Created on 5/25/2021$
 
 
 def summaryopt():
-	# TODO summaryopt docs
+	# TODO DOCS: summaryopt
 	"""
 	Name:
 		summaryopt
@@ -39,8 +39,10 @@ def summaryopt():
 
 	Created on 4/17/2021$
 	"""
+	#TODO FUNC: summaryopt
 	return
 
 def plotting():
-	#TODO plotting
+	#TODO DOCS: plotting
+	#TODO FUNC: plotting
 	return

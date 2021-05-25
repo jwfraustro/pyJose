@@ -1,4 +1,4 @@
-#TODO shift docs
+#TODO DOCS: shift
 """
 A collection of functions for vector shifting and sampling.
 
@@ -15,11 +15,12 @@ Created on 5/25/2021$
 
 
 def findshift():
+	# TODO DOCS: findshift
 	"""
 	Finds the shift in the trace for each row of an input vector.
 
 	Calling Example:
-		#TODO findshift docs
+
 	Inputs:
 
 	Outputs:
@@ -28,13 +29,13 @@ def findshift():
 
 	Created on 4/17/2021$
 	"""
-	#TODO findshift
+	#TODO FUNC: findshift
 
 	return
 
 
 def sampleshift():
-	# TODO sampleshift docs
+	# TODO DOCS: sampleshift
 	"""
 
 	Shifts an array according to an input vector, then shrinks it.
@@ -65,8 +66,8 @@ def sampleshift():
 		Returns to data array that has been expanded or contracted and/or shifted.
 
 	History:
-		#TODO sampleshift history
+
 	Created on 4/17/2021$
 	"""
-	#TODO sampleshift
+	#TODO FUNC: sampleshift
 	return

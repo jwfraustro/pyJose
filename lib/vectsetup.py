@@ -1,4 +1,4 @@
-#TODO vectorsetup docs
+#TODO DOCS: vectsetup
 """
 Name:
 
@@ -22,12 +22,13 @@ from lib.excep import ParameterException
 from lib.procvect import procvect
 
 def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
+	#TODO DOCS: extrspec
 	"""
 
 	Optimally extracts spectra using weighted profiles.
 
 	Calling Example:
-		#TODO extrspec calling example
+
 	Inputs:
 		dataim: Sky-subtracted, processed image to extract spectrum from.
 				Horizontal is pixel position, vertical is wavelength, assuming no curvature.
@@ -37,18 +38,18 @@ def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
 		q:      effective number of photons per DN
 		x1, x2: boundaries in x which contain spectrum (inclusive)
 	Optional Keywords:
-		#TODO extrspec optional keywords
+
 	Outputs:
 		Returns fopt, an array of optimally extracted spectra, and their variances.
 	History:
-		#TODO extrspec history
+
 	Created on 4/17/2021$
 	"""
-	#TODO extrspec
+	#TODO FUNC: extrspec
 	return
 
 def fitprof(dataim, spec, x1, x2, **kwargs):
-	# TODO fitprof docs
+	# TODO DOCS: fitprof
 	"""
 	Creates an image of normalized spatial profiles, enforces positivity, normalization.
 		If needed, can also shift and expand the data image prior to fitting. By default fits a
@@ -64,11 +65,11 @@ def fitprof(dataim, spec, x1, x2, **kwargs):
 
 	Created on 4/17/2021$
 	"""
-	#TODO fitprof
+	#TODO FUNC: fitprof
 	return
 
 def fitbg(dataim, x1, x2, q, v0, RunConfig):
-	# TODO fitbg docs
+	# TODO DOCS: fitbg
 	"""
 	Creates a sky background image from a data image, interpolated across the spectrum, to create an image of sky lines only.
 
@@ -144,7 +145,6 @@ def fitbg(dataim, x1, x2, q, v0, RunConfig):
 	# Cut up the data into rows and pass each to procvect. Tell procvect
 	# to use polyfunc to estimate the background. Procvect will handle
 	# bad pixel rejection, and return the polynomial over all x
-	# TODO
 
 	for i in range(ny):
 		datav = dataim[:, i]
@@ -158,7 +158,7 @@ def fitbg(dataim, x1, x2, q, v0, RunConfig):
 			parm = RunConfig.BGDEG
 		if i == RunConfig.BGOTOVECT:
 			RunConfig.VERBOSE = 5
-		# TODO PLOT INFO
+		# TODO PLOTTING
 		#if RunConfig.PLOTTYPE == 1 or RunConfig.VERBOSE == 5:
 			#device, window_state = ws
 			#if not ws[12] then window, 12 else wset, 12
@@ -177,7 +177,7 @@ def fitbg(dataim, x1, x2, q, v0, RunConfig):
 		                      xvals=xvals,q=q, v0=v0, skyvarv=skyvarv, vectnum=i, func=func,
 		                      parm=parm)
 
-		#TODO MORE PLOTTING
+		#TODO PLOTTING
 		#if plottype[3] then begin
 		#device, window_state = ws
 		#if not ws[14] then window, 14 else wset, 14

@@ -1,4 +1,4 @@
-#TODO horne docs
+#TODO DOCS: horne
 """
 Name:
 
@@ -18,7 +18,7 @@ Created on 5/25/2021$
 """
 
 def stdextr(dataim, varim, x1, x2, **opts):
-	# TODO stdextr docs
+	# TODO DOCS: stdextr
 	"""
 	Name:
 		stdextr
@@ -37,5 +37,5 @@ def stdextr(dataim, varim, x1, x2, **opts):
 
 	Created on 4/17/2021$
 	"""
-	#TODO stdextr
+	#TODO FUNC: stdextr
 	return

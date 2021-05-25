@@ -3,7 +3,7 @@ from lib.vectfit import polyfunc
 
 
 def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum, func, parm, multv=None, bgv=None):
-	# TODO procvect docs
+	# TODO DOCS: procvect
 	"""
 	Name:
 		procvect
@@ -56,7 +56,7 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 	if not RunConfig.PLOTTYPE:
 		RunConfig.PLOTTYPE = 0
 
-	# TODO PROCVECT ERROR CHECKING
+	# TODO FUNC: procvect error checking
 
 	# str = ""
 	# str += nx ne n_elements(varv)    ? "varv"    : ""
@@ -81,7 +81,7 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 
 	# if an absolute threshold is used, use that threshold. Else, square
 	# the sigma threshold so it can be used with variance calculations
-	# TODO Not sure about this thresh value. Variables seem to be different between modules
+	# FIXME: optspecextr variable name changes
 	# if RunConfig.BTHRESH:
 	# 	vthresh = RunConfig.BTHRESH
 	# else:
@@ -122,7 +122,7 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 		fitvar = varv[fitx]
 		fitmult = multv[fitx]
 		est = polyfunc(fitx, fitdata, fitvar, fitmult, 0, coeffv, parm)
-		# TODO ABSTHRESH PROBLEM
+		# FIXME procvect absthresh
 
 		# if absthresh:
 		#   crv[fitx] = abs(fitdata / fitmult - est)
@@ -131,7 +131,7 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 
 		badpix = np.where(crv[fitx] > vthresh)
 
-		# TODO MORE PLOTTING
+		# TODO FUNC: procvect plotting
 
 		# if plottype[2] or (verbose eq 5) then begin
 		# device, window_state = ws

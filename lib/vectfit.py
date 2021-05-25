@@ -1,4 +1,4 @@
-# TODO vectorfit docs
+# TODO DOCS: vectfit
 """
 Name:
 
@@ -25,10 +25,10 @@ from scipy.ndimage.filters import uniform_filter1d as smooth
 from scipy.interpolate import interp1d as interpol
 
 def gausseval(x, a, f=None, p=None):
-	# TODO gaussfunc docs
+	# TODO DOCS: gausseval
 	"""
 	Name:
-		gaussfunc
+		gausseval
 	Purpose:
 		Function for estimating a Gaussian curve to the data.
 	Category:
@@ -106,9 +106,7 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 	est = datav / specv
 	origcoeff = coeff
 
-	# TODO FIT DATA
-	# 	; FIT
-	# 	DATA
+	# FIXME gaussfit fit data
 	#
 	# 	;est[nz] = gaussfit(xvals[nz], datav[nz] / specv, coeff, $
 	# 	;                     measure_errors = sqrt(varv[nz]), nterms = 4, $
@@ -137,7 +135,7 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 	return
 
 def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
-	# TODO boxcarfunc docs
+	# TODO DOCS: boxcarfunc
 	"""
 	Function: boxcarfunc
 
@@ -170,10 +168,10 @@ def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
 		smooth over the good pixels and interpolate over the bad pixels.
 
 	Example:
-		TODO
+
 
 	Modification History:
-		TODO
+
 
 
 	"""
@@ -216,7 +214,7 @@ def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
 
 
 def centermass(x_vals, data_v, var_v, spec_v):
-	# TODO centermass docs
+	# TODO DOCS: centermass
 	"""
 	Function: centermass
 
@@ -254,7 +252,7 @@ def centermass(x_vals, data_v, var_v, spec_v):
 
 
 def extractfunc(xvals, datav, varv, profv, eval, coeffv, opvar):
-	# TODO extractfunc docs
+	# TODO DOCS: extractfunc
 	"""
 	Name:
 		extractfunc
@@ -297,7 +295,7 @@ def extractfunc(xvals, datav, varv, profv, eval, coeffv, opvar):
 
 
 def polyeval(coeffs, xvals):
-	# TODO polyeval docs
+	# TODO DOCS: polyeval
 	"""
 	Name:
 		polyeval
@@ -330,7 +328,7 @@ def polyeval(coeffs, xvals):
 	return np.polyval(coeffs, xvals)
 
 def polyfunc(xvals, datav, varv, specv, eval, coeffv, deg):
-	# TODO polyfunc docs
+	# TODO DOCS: polyfunc
 	"""
 	Name:
 		polyfunc
@@ -408,7 +406,7 @@ def polyfunc(xvals, datav, varv, specv, eval, coeffv, deg):
 			else:
 				coeffv = np.polyfit(xvals, datav / specv, deg)
 
-	# TODO Where does estz in the following from the original come from? It's never declared...
+	# FIXME: Where does estz in the following from the original come from? It's never declared...
 	# coeffv = linfit(xvals, datav/specv, $
 	#                       measure_errors = merrors, yfit = estz)
 	# coeffv = poly_fit(xvals, datav/specv, deg, /double, $

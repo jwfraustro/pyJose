@@ -1,4 +1,4 @@
-#TODO excep docs
+#TODO DOCS: excep
 
 class ParameterException(Exception):
 	def __init__(self, message):

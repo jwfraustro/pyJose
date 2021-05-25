@@ -1,4 +1,4 @@
-#TODO optspecextr docs
+#TODO DOCS: optspecextr
 """
 Name:
 	optspecextr
@@ -37,14 +37,15 @@ def optspecextr(config_file):
 	if RunConfig.VERBOSE == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
 
-	bgim = fitbg(data, x1, x2, q, v0, RunConfig) #TODO
+	#TODO FUNC: optspecextr
+	bgim = fitbg(data, x1, x2, q, v0, RunConfig)
 
 	# verbose = save_verbose
 	# plot_type = save_plottype
 	#
 	# dataim = data - bgim
 	#
-	# stdspec = stdextr(dataim, varim, x1, x2, **kwargs) #TODO
+	# stdspec = stdextr(dataim, varim, x1, x2, **kwargs)
 	#
 	# if 'integrate' in kwargs:
 	# 	if kwargs['integrate'] == True:
@@ -55,7 +56,7 @@ def optspecextr(config_file):
 	# save_verbose = verbose
 	# save_plottype = plot_type
 	#
-	# # if (verbose eq 5 ) then stop #TODO
+	# # if (verbose eq 5 ) then stop
 	# profim = fitprof(dataim, spec, x1, x2, **kwargs)
 	#
 	# verbose = save_verbose
@@ -65,7 +66,7 @@ def optspecextr(config_file):
 	#
 	# varout = varim
 	#
-	# #TODO
+	#
 	# #summaryopt, data, varout, bgim, profim, inmask, bgmask, exmask, $
     # #        difpmask, optspec, stdspec, traceest, $
     # #        berrvect, perrvect, eerrvect, $
