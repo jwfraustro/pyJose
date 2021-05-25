@@ -1,12 +1,11 @@
-# TODO fitbg docs
+#TODO vectorsetup docs
 """
 Name:
-	fitbg
+
 Purpose:
-	Creates a sky background image from a data image, interpolated across the spectrum, to create an image of sky lines only.
+
 Category:
-	Optimal Spectrum Extraction Package
-		- Vector Setup functions
+
 Calling Example:
 
 Inputs:
@@ -15,13 +14,74 @@ Outputs:
 
 History:
 
-Created on 4/17/2021$
+Created on 5/25/2021$
 """
+
 import numpy as np
 from lib.excep import ParameterException
 from lib.procvect import procvect
 
+def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
+	"""
+
+	Optimally extracts spectra using weighted profiles.
+
+	Calling Example:
+		#TODO extrspec calling example
+	Inputs:
+		dataim: Sky-subtracted, processed image to extract spectrum from.
+				Horizontal is pixel position, vertical is wavelength, assuming no curvature.
+		profim: image of spatial profiles
+		varim:  variance image from processed image
+		v_0:    root(v_0) is squared readout noise in DN
+		q:      effective number of photons per DN
+		x1, x2: boundaries in x which contain spectrum (inclusive)
+	Optional Keywords:
+		#TODO extrspec optional keywords
+	Outputs:
+		Returns fopt, an array of optimally extracted spectra, and their variances.
+	History:
+		#TODO extrspec history
+	Created on 4/17/2021$
+	"""
+	#TODO extrspec
+	return
+
+def fitprof(dataim, spec, x1, x2, **kwargs):
+	# TODO fitprof docs
+	"""
+	Creates an image of normalized spatial profiles, enforces positivity, normalization.
+		If needed, can also shift and expand the data image prior to fitting. By default fits a
+		polynomial in the spacial direction.
+
+	Calling Example:
+
+	Inputs:
+
+	Outputs:
+
+	History:
+
+	Created on 4/17/2021$
+	"""
+	#TODO fitprof
+	return
+
 def fitbg(dataim, x1, x2, q, v0, RunConfig):
+	# TODO fitbg docs
+	"""
+	Creates a sky background image from a data image, interpolated across the spectrum, to create an image of sky lines only.
+
+	Calling Example:
+
+	Inputs:
+
+	Outputs:
+
+	History:
+
+	Created on 4/17/2021$
+	"""
 	# Fill inputs and verify
 	dims = np.shape(dataim)
 
@@ -135,5 +195,3 @@ def fitbg(dataim, x1, x2, q, v0, RunConfig):
 		bgres[:, i] = bcrv * maskv
 
 	return bgim
-
-	return

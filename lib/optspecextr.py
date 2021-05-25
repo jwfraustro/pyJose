@@ -16,7 +16,7 @@ History:
 
 Created on 4/17/2021$
 """
-from lib.fitbg import *
+from lib.vectsetup import fitbg
 from lib.utils import load_config
 import numpy as np
 
