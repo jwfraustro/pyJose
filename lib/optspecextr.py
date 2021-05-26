@@ -18,7 +18,9 @@ Created on 4/17/2021$
 """
 from lib.vectsetup import fitbg
 from lib.utils import load_config
+from lib.horne import stdextr
 import numpy as np
+import os, sys
 
 def optspecextr(config_file):
 
@@ -40,24 +42,31 @@ def optspecextr(config_file):
 	#TODO FUNC: optspecextr_source
 	bgim = fitbg(data, x1, x2, q, v0, RunConfig)
 
-	# verbose = save_verbose
-	# plot_type = save_plottype
-	#
-	# dataim = data - bgim
-	#
-	# stdspec = stdextr(dataim, varim, x1, x2, **kwargs)
-	#
-	# if 'integrate' in kwargs:
-	# 	if kwargs['integrate'] == True:
-	# 		spec = kwargs['adjspec']
-	# else:
-	# 	spec = stdspec
-	#
-	# save_verbose = verbose
-	# save_plottype = plot_type
-	#
-	# # if (verbose eq 5 ) then stop
-	# profim = fitprof(dataim, spec, x1, x2, **kwargs)
+	verbose = save_verbose
+	plot_type = save_plottype
+
+	dataim = data - bgim
+
+	#FIXME: stdextr kwargs: stdvar is pass by ref, adjspec is bool, inmask array
+	stdspec = stdextr(dataim, varim, x1, x2, inmask, stdvar, adjspec)
+
+	if RunConfig.INTEGRATE:
+		#FIXME: where is adjspec defined?
+		spec = adjspec
+
+	else:
+		spec = stdspec
+
+	#FIXME: for pass by reference
+	save_verbose = verbose
+	save_plottype = plot_type
+
+	if RunConfig.VERBOSE == 5:
+		cont = input("Stopping at profile fitting. Press any key to continue or (q) to quit.")
+		if cont == 'q' or "Q":
+			sys.exit(0)
+
+	profim = fitprof(dataim, spec, x1, x2, **kwargs)
 	#
 	# verbose = save_verbose
 	# plot_type = save_plottype

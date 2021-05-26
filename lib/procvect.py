@@ -27,17 +27,17 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 	# Set defaults & check inputs
 	nx = np.shape(datav)[0]
 
-	if not xvals:
+	if not np.any(xvals):
 		xvals = np.arange(nx)
-	if not varv:
+	if not np.any(varv):
 		varv = np.ones(nx)
-	if not multv:
+	if not np.any(multv):
 		multv = np.ones(nx)
-	if not maskv:
+	if not np.any(maskv):
 		maskv = np.ones(nx, np.byte)
-	if not bgv:
+	if not np.any(bgv):
 		bgv = np.array(nx)
-	if not skyvarv:
+	if not np.any(skyvarv):
 		skyvarv = np.array(nx)
 	if not crv:
 		crv = np.array(nx)
