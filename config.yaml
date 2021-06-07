@@ -1,100 +1,98 @@
-DATA: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
-VAR: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
-RN: 0.0      # Read noise of data frame in DN
-Q: 10.0       # Effective number of photos per DN for data frame
-X1: 256      # Start boundary in x of spectrum (inclusive)
-X2: 315      # End Boundary in x of spectrum (inclusive)
+data: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
+var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
+rn: 0.0      # Read noise of data frame in DN
+q: 10.0       # Effective number of photos per DN for data frame
+x1: 256      # Start boundary in x of spectrum (inclusive)
+x2: 315      # End Boundary in x of spectrum (inclusive)
 
-OPTIONS:
-  INPUT:
-    # GENERAL
-    SKYVAR: null      # Variance image of sky (default 0s)
-    INMASK: null      # User input mask with good pixels=1, bad=0 (default 1s)
-    BPCT: null        # Set the percentage of bad pixels before kicking out (0.5)
-    INTEGRATE: null   # Set to integrate over bad pixels when calculating spec for use in the profile fitting
-    VARIM: null
+# GENERAL
+skyvar: null      # Variance image of sky (default 0s)
+inmask: null      # User input mask with good pixels=1, bad=0 (default 1s)
+bpct: null        # Set the percentage of bad pixels before kicking out (0.5)
+integrate: null   # Set to integrate over bad pixels when calculating spec for use in the profile fitting
+varim: null
 
-    # BACKGROUND FITTING
-    NOBGFIT: null     # Set to not fit the background
-    BTHRESH: null     # sigma threshold for cosmic ray rejection for bg, (3)
-    BGDEG: null       # degree of polynomial fit for interpolation in fitbg (1)
+# BACKGROUND FITTING
+nobgfit: null     # Set to not fit the background
+bthresh: null     # sigma threshold for cosmic ray rejection for bg, (3)
+bgdeg: null       # degree of polynomial fit for interpolation in fitbg (1)
 
-    # PROFILE FITTING - GEOMETRY ADJUSTMENT
-    ADJFUNC: null     # The name of the function to call with images to modify
-    ADJOPTIONS:
-      LEVEL: null     # The amount to expand the array
-      CENTER: null    # Set to 1 to adjust each column so the centers line up (1)
-      WIDTH: null     # Adjust to reflect each pixel's relative distance from center
-                      # according to that row's gaussian width
-      CENTROID: null  # Set to use centroid fitting instead
-      GAUSSTH: null   # The absolute value of allowable error when fitting a gaussian
-                      # to the data (3 percent)
-      SHIFTTH: null   # The absolute allowable error between a row's center and the
-                      # fitted trace
-      DEGCONTR: null  # degree of fit to use when contracting the array (2)
-      CENTERDEG: null # degree of fit for estimating the shift (2)
-      CENTERFIT: null # set to not fit the estimated centers and not accept the
-                      # the fitting to be correct
+# PROFILE FITTING - GEOMETRY ADJUSTMENT
+adjfunc: null     # The name of the function to call with images to modify
+adjoptions:
+  level: null     # The amount to expand the array
+  center: null    # Set to 1 to adjust each column so the centers line up (1)
+  width: null     # Adjust to reflect each pixel's relative distance from center
+                  # according to that row's gaussian width
+  centroid: null  # Set to use centroid fitting instead
+  gaussth: null   # The absolute value of allowable error when fitting a gaussian
+                  # to the data (3 percent)
+  shiftth: null   # The absolute allowable error between a row's center and the
+                  # fitted trace
+  degcontr: null  # degree of fit to use when contracting the array (2)
+  centerdeg: null # degree of fit for estimating the shift (2)
+  centerfit: null # set to not fit the estimated centers and not accept the
+                  # the fitting to be correct
 
-    ADJPARMS:
-      ORIGX: null
-      ADJX: null
-      TRACEEST: null
-      WIDTHEST: null
+adjparms:
+  origx: null
+  adjx: null
+  traceest: null
+  widthest: null
 
-    # PROFILE FITTING - SMOOTHING
-    NOPROFFIT: null
-    PTHRESH: null
-    PROFDEG: null
-    FITGAUSS: null
-    FITBOXCAR: null
-    BOXCARHW: null
+# PROFILE FITTING - SMOOTHING
+noproffit: null
+pthresh: null
+profdeg: null
+fitgauss: null
+fitboxcar: null
+boxcarhw: null
 
-    # OPTIMAL EXTRACTION
-    ETHRESH: null
+# OPTIMAL EXTRACTION
+ethresh: null
 
-    # DEBUGGING
-    VERBOSE: 2
-      # Set to level of output
-      #   0 - fatal
-      #   1 - collect stats
-      #   2 - where you are in the program
-      #   3 - output every warning
-      #   4 - plot how the data are being used
-      #   5 - stop after each iteration
-    PLOTTYPE: null
-      # Set to the type of plot output to the screen
-      #   0 - No Plots
-      #   1 - Show a summary of all processed frames
-      #   2 - Show the data used as input to procvect
-      #   3 - Show how procvect is fitting the data
-      #   4 - Use shade_surf to show the fitted and raw data
-      #   5 - Show all plots
-    BGOTOVECT: null
-    PGOTOVECT: null
-    EGOTOVECT: null
-    DEBUGHEAD: null
-  OUTPUT:
-    # Background Fitting
-    BGIM: null      # Interpolated sky background image
-    BGMASK: null    # Background's mask
-    BGRES: null     # The sigma difference between the actual and expected
-    BERRVECT: null  # Mask of rows where iteration stopped during fitbg
+# DEBUGGING
+verbose: 2
+  # Set to level of output
+  #   0 - fatal
+  #   1 - collect stats
+  #   2 - where you are in the program
+  #   3 - output every warning
+  #   4 - plot how the data are being used
+  #   5 - stop after each iteration
+plottype: null
+  # Set to the type of plot output to the screen
+  #   0 - No Plots
+  #   1 - Show a summary of all processed frames
+  #   2 - Show the data used as input to procvect
+  #   3 - Show how procvect is fitting the data
+  #   4 - Use shade_surf to show the fitted and raw data
+  #   5 - Show all plots
+bgotovect: null
+pgotovect: null
+egotovect: null
+debughead: null
 
-    # Standard Extraction
-    STDSPEC: null   # Standard spectrum
-    STDVAR: null    # Returns variance of standard spectrum
+# Background Fitting
+bgim: null      # Interpolated sky background image
+bgmask: null    # Background's mask
+bgres: null     # The sigma difference between the actual and expected
+berrvect: null  # Mask of rows where iteration stopped during fitbg
 
-    # Profile Fitting:
-    PROFIM: null    # Calculated profile image
-    PROFMASK: null  # The calculated profile cosmic ray mask
-    DIFPMASK: null  # Pixels rejected during the profile fitting routine
-    PROFRES: null   # The profile residual image
-    PERRVECT: null  # Mask of rows/columns where iteration stopped during fitprof
+# Standard Extraction
+stdspec: null   # Standard spectrum
+stdvar: null    # Returns variance of standard spectrum
 
-    # Optimal Extraction:
-    OPVAR: null     # Returns optimally extracted variance
-    VAROUT: null    # Returns the final calculated variance
-    EXMASK: null    # Calculated cosmic ray mask
-    EXRES: null     # Cosmic ray image: dataim-spec*profim*profim/varim
-    EERRVECT: null  # Mask of rows where iteration stopped during extrspec
+# Profile Fitting:
+profim: null    # Calculated profile image
+profmask: null  # The calculated profile cosmic ray mask
+difpmask: null  # Pixels rejected during the profile fitting routine
+profres: null   # The profile residual image
+perrvect: null  # Mask of rows/columns where iteration stopped during fitprof
+
+# Optimal Extraction:
+opvar: null     # Returns optimally extracted variance
+varout: null    # Returns the final calculated variance
+exmask: null    # Calculated cosmic ray mask
+exres: null     # Cosmic ray image: dataim-spec*profim*profim/varim
+eerrvect: null  # Mask of rows where iteration stopped during extrspec

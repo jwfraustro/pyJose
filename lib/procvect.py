@@ -2,7 +2,7 @@ import numpy as np
 from lib.vectfit import polyfunc
 
 
-def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum, func, parm, multv=None, bgv=None):
+def procvect(RunConfig):
 	# TODO DOCS: procvect
 	"""
 	Name:
@@ -25,36 +25,36 @@ def procvect(datav, RunConfig, varv, maskv, crv, xvals, q, v0, skyvarv, vectnum,
 	Created on 4/17/2021$
 	"""
 	# Set defaults & check inputs
-	nx = np.shape(datav)[0]
+	nx = np.shape(RunConfig.datav)[0]
 
-	if not np.any(xvals):
-		xvals = np.arange(nx)
-	if not np.any(varv):
-		varv = np.ones(nx)
-	if not np.any(multv):
-		multv = np.ones(nx)
-	if not np.any(maskv):
+	if not np.any(RunConfig.xvals):
+		RunConfig.xvals = np.arange(nx)
+	if not np.any(RunConfig.varv):
+		RunConfig.varv = np.ones(nx)
+	if not np.any(RunConfig.multv):
+		RunConfig.multv = np.ones(nx)
+	if not np.any(RunConfig.maskv):
 		maskv = np.ones(nx, np.byte)
-	if not np.any(bgv):
-		bgv = np.array(nx)
-	if not np.any(skyvarv):
-		skyvarv = np.array(nx)
-	if not crv:
-		crv = np.array(nx)
-	if not RunConfig.BTHRESH:
-		RunConfig.BTHRESH = 5
-	if not q:
-		q = 1
-	if not v0:
-		v0 = 0
-	if not RunConfig.BPCT:
-		RunConfig.BPCT = 0.5
-	if not func:
-		func = 'polyfunc'
-	if not RunConfig.VERBOSE:
-		RunConfig.VERBOSE = 0
-	if not RunConfig.PLOTTYPE:
-		RunConfig.PLOTTYPE = 0
+	if not np.any(RunConfig.bgv):
+		RunConfig.bgv = np.array(nx)
+	if not np.any(RunConfig.skyvarv):
+		RunConfig.skyvarv = np.array(nx)
+	if not RunConfig.bcrv:
+		RunConfig.bcrv = np.array(nx)
+	if not RunConfig.bthresh:
+		RunConfig.bthresh = 5
+	if not RunConfig.q:
+		RunConfig.q = 1
+	if not RunConfig.v0:
+		RunConfig.v0 = 0
+	if not RunConfig.bpct:
+		RunConfig.bpct = 0.5
+	if not RunConfig.func:
+		RunConfig.func = 'polyfunc'
+	if not RunConfig.verbose:
+		RunConfig.verbose = 0
+	if not RunConfig.plottype:
+		RunConfig.plottype = 0
 
 	# TODO FUNC: procvect error checking
 

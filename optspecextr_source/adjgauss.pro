@@ -50,7 +50,7 @@
 ;
 ; KEYWORD PARAMETERS:
 ;     ADJPARMS:   A structure for paramaters of the adjustment with 
-;       .ORIGX:      the x values for each pixel in the origional images
+;       .ORIGX:      the x values for each pixel in the original images
 ;       .ADJX:       the x values for each pixel in the adjusted images
 ;       .TRACEEST:   the estimated center for each row
 ;       .WIDTHEST:   the estimated width for each row;

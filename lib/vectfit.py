@@ -23,6 +23,47 @@ import numpy as np
 from scipy.signal import medfilt as median
 from scipy.ndimage.filters import uniform_filter1d as smooth
 from scipy.interpolate import interp1d as interpol
+from scipy.interpolate import CubicSpline
+
+def newton_cotes(xvals, datav):
+
+	def booles_rule(y, h):
+
+		bl = (7*y[0]+
+		      32*y[1]+
+		      12*y[2]+
+		      32*y[3]+
+		      7*y[4])*(2*h)/45
+
+		return bl
+
+	# check if arrays are sorted
+	# if not, do so
+	if not all(xvals[i] <= xvals[i + 1] for i in range(len(xvals) - 1)):
+
+		zipped_lists = zip(xvals, datav)
+		sort_pairs = sorted(zipped_lists)
+		tups = zip(*sort_pairs)
+		xvals, datav = [list(tup) for tup in tups]
+
+	# Divide the xvals into 5 equally spaced points
+
+	a = min(xvals)
+	b = max(xvals)
+	h = (b - a) / 4
+
+	xvals_new = [a, a+h, a+2*h, a+3*h, b]
+	print(xvals_new)
+
+	# Use cubic spline interpolation to calculate datav points at those values
+	f = CubicSpline(xvals, datav)
+	datav_new = f(xvals_new)
+	print(datav_new)
+
+	# Perform Boole's Rule
+	bl = booles_rule(datav_new, h)
+
+	return bl
 
 def gausseval(x, a, f=None, p=None):
 	# TODO DOCS: gausseval
@@ -81,9 +122,8 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 		return f
 
 		# Prepare Fitting
-		# TODO INT_TABULATED: 5-Point Newton-Cotes implementation
 		# if reest:
-		specv = int_tabulated(xvals, datav)  # reestimate spectrum
+		specv = newton_cotes(xvals, datav)  # reestimate spectrum
 
 	hbw = 4 < nx / 2 - 1  # half box width for estimation
 	sdata = smooth(datav / specv, 2 * hbw + 1)  # estimate gauss
@@ -412,3 +452,8 @@ def polyfunc(xvals, datav, varv, specv, eval, coeffv, deg):
 	# coeffv = poly_fit(xvals, datav/specv, deg, /double, $
 	#                         yfit = estz, yband = yband, measure_errors = merrors)
 	return est
+
+if __name__ == '__main__':
+	x = [0.0, .12, .22, .32, .36, .40, .44, .54, .64, .70, .80]
+	f = [0.200000, 1.30973, 1.30524, 1.74339, 2.07490, 2.45600, 2.84299, 3.50730, 3.18194, 2.36302, 0.231964]
+	print(newton_cotes(x, f))
