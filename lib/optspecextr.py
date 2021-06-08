@@ -31,10 +31,10 @@ def optspecextr(config_file):
 	if not RunConfig.plottype:
 		RunConfig.plottype = 0
 
-	v0 = RunConfig.rn ** 2
-	x1 = np.round(RunConfig.x1)
-	x2 = np.round(RunConfig.x2)
-	varim = RunConfig.var
+	RunConfig.v0 = RunConfig.rn ** 2
+	RunConfig.x1 = np.round(RunConfig.x1)
+	RunConfig.x2 = np.round(RunConfig.x2)
+	RunConfig.varim = RunConfig.var
 
 	if RunConfig.verbose == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
@@ -45,7 +45,7 @@ def optspecextr(config_file):
 	# verbose = save_verbose
 	# plot_type = save_plottype
 	#
-	# dataim = data - bgim
+	# RunConfig.dataim = RunConfig.data - RunConfig.bgim
 	#
 	# #FIXME: stdextr kwargs: stdvar is pass by ref, adjspec is bool, inmask array
 	# stdspec = stdextr(dataim, varim, x1, x2, inmask, stdvar, adjspec)
@@ -71,7 +71,7 @@ def optspecextr(config_file):
 	# verbose = save_verbose
 	# plot_type = save_plottype
 	#
-	# optspec = extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs)
+	RunConfig.optspec = extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs)
 	#
 	# varout = varim
 	#

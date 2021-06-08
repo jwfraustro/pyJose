@@ -1,0 +1,47 @@
+adjgauss
+    inarray
+
+    optinfo:
+        dataim
+        varim
+        skyvar
+        bgim
+        inmask
+        q
+        v0
+        x1
+        x2
+        spec
+        bpct
+        verbose
+        plottype
+
+    straighten
+    expand
+    centroid
+    tracedeg
+    notracefit
+    gaussth
+    shiftth
+    degcontr
+
+    adjparms:
+        origx
+        adjx
+        traceest
+        widthest
+
+    adjoptions:
+        level
+        center
+        width
+        centroid
+        gaussth
+        shiftth
+        degcontr
+        centerdeg
+        centerfit
+
+    revert
+
+

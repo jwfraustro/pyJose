@@ -1,4 +1,4 @@
-data: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
+data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
 rn: 0.0      # Read noise of data frame in DN
 q: 10.0       # Effective number of photos per DN for data frame
@@ -6,6 +6,7 @@ x1: 256      # Start boundary in x of spectrum (inclusive)
 x2: 315      # End Boundary in x of spectrum (inclusive)
 
 # GENERAL
+data: null
 skyvar: null      # Variance image of sky (default 0s)
 inmask: null      # User input mask with good pixels=1, bad=0 (default 1s)
 bpct: null        # Set the percentage of bad pixels before kicking out (0.5)

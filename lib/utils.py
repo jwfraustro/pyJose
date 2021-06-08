@@ -118,9 +118,9 @@ def load_config(config_file):
 
 	RunConfig = Config(**config_map)
 
-	with fits.open(RunConfig.data) as r:
-		data_im = r[0].data
+	with fits.open(RunConfig.data_file) as r:
+		data = r[0].data
 
-	RunConfig.data_im = data_im
+	RunConfig.data = data
 
 	return RunConfig
