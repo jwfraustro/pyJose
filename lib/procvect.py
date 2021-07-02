@@ -1,6 +1,6 @@
 import numpy as np
 from lib.vectfit import polyfunc
-
+from lib.excep import *
 
 def procvect(RunConfig):
 	# TODO DOCS: procvect
@@ -68,38 +68,43 @@ def procvect(RunConfig):
 	# TODO FUNC: procvect error checking
 
 	# str = ""
-	# str += nx ne n_elements(varv)    ? "varv"    : ""
-	# str += nx ne n_elements(maskv)   ? "maskv"   : ""
-	# str += nx ne n_elements(multv) $
-	#  && 1 ne n_elements(multv)   ? "multv"   : ""
-	# str += nx ne n_elements(bgv)     ? "bgv"     : ""
-	# str += nx ne n_elements(skyvarv) ? "skyvarv" : ""
-	# str += nx ne n_elements(crv)     ? "crv"     : ""
-	# str += 4 ne n_elements(plottype) ? "plottype must have 4 elements" : ""
-	# str += thresh le 0               ? "thresh less than 0" : ""
-	# str += Q le 0                    ? "Q is less or equal to 0" : ""
-	# str += v0 lt 0                   ? "v0 is less than 0" : ""
-	# str += bpct gt 1 || bpct lt 0    ? "bpct is not betwee 0 and 1" : ""
-	# if str ne "" then message, "Poorly formed inputs: " + str
+	if nx != len(RunConfig.varv):
+		raise VectorLengthException("nx", "varv")
+	if nx != len(RunConfig.varv):
+		raise VectorLengthException("nx", "varv")
+	if nx != len(RunConfig.multv) and len(RunConfig.multv) != 1:
+		raise VectorLengthException("nx", "multv")
+	if nx != len(RunConfig.bgv):
+		raise VectorLengthException("nx", "bgv")
+	if nx != len(RunConfig.skyvarv):
+		raise VectorLengthException("nx", "skyvarv")
+	if nx != len(RunConfig.bcrv):
+		raise VectorLengthException("nx", "bcrv")
+	if RunConfig.bthresh < 0:
+		raise ParameterException("Threshold cannot be less than 0.")
+	if RunConfig.q < 0:
+		raise ParameterException("Q cannot be less than 0.")
+	if RunConfig.v0 < 0:
+		raise ParameterException("v0 cannot be less than 0.")
+	if RunConfig.bpct > 1 or RunConfig.bpct < 0:
+		raise ParameterException("bpct must be between 0 and 1.")
 
 	# if a row or column number is given, use that for the debug plot title
-	try:
-		if RunConfig.vectnum:
-			RunConfig.vectnum_s = " at Vector # " + str(RunConfig.vectnum)
-		else:
-			RunConfig.vectnum_s = ""
-	except:
+	if RunConfig.vectnum:
+		RunConfig.vectnum_s = " at Vector # " + str(RunConfig.vectnum)
+	else:
+		RunConfig.vectnum_s = ""
 
 	# if an absolute threshold is used, use that threshold. Else, square
 	# the sigma threshold so it can be used with variance calculations
 	if RunConfig.absthresh:
-		RunConfig.vthresh = RunConfig.thresh
+		RunConfig.vthresh = RunConfig.bthresh
 	else:
-		RunConfig.vthresh = RunConfig.thresh ** 2
+		RunConfig.vthresh = RunConfig.bthresh ** 2
 
 	# set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
 	# or the given percentage good of pixels passed in
-	error_thresh = len(np.where(xvals=1)) * (1 - RunConfig.bpct) > len(RunConfig.xvals) * 0.10 > 6
+	RunConfig.error_thresh = len(np.where(xvals=1)) * (1 - RunConfig.bpct) > len(RunConfig.xvals) * 0.10 > 6
 
 	RunConfig.errflag = 0
 	RunConfig.coeffv = 0
@@ -136,12 +141,12 @@ def procvect(RunConfig):
 		                         RunConfig.coeffv, RunConfig.parm)
 
 		if RunConfig.absthresh:
-			RunConfig.crv[RunConfig.fitx] = abs(RunConfig.fitdata / RunConfig.fitmult - RunConfig.est)
+			RunConfig.bcrv[RunConfig.fitx] = abs(RunConfig.fitdata / RunConfig.fitmult - RunConfig.est)
 		else:
-			RunConfig.crv[RunConfig.fitx] = (RunConfig.fitdata - RunConfig.fitmult * RunConfig.est) ** 2 / (
+			RunConfig.bcrv[RunConfig.fitx] = (RunConfig.fitdata - RunConfig.fitmult * RunConfig.est) ** 2 / (
 						RunConfig.fitvar > 1E-6)
 
-		RunConfig.badpix = np.where(RunConfig.crv[RunConfig.fitx] > RunConfig.vthresh)
+		RunConfig.badpix = np.where(RunConfig.bcrv[RunConfig.fitx] > RunConfig.vthresh)
 
 		# TODO FUNC: procvect plotting
 

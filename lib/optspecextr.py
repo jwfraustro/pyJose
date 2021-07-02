@@ -1,4 +1,4 @@
-#TODO DOCS: optspecextr_source
+# TODO DOCS: optspecextr_source
 """
 Name:
 	optspecextr_source
@@ -16,14 +16,14 @@ History:
 
 Created on 4/17/2021$
 """
-from lib.vectsetup import fitbg
+from lib.vectsetup import fitbg, fitprof
 from lib.utils import load_config
 from lib.horne import stdextr
 import numpy as np
 import os, sys
 
-def optspecextr(config_file):
 
+def optspecextr(config_file):
 	RunConfig = load_config(config_file)
 
 	if not RunConfig.verbose:
@@ -39,34 +39,29 @@ def optspecextr(config_file):
 	if RunConfig.verbose == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
 
-	#TODO FUNC: optspecextr_source
+	# Setup pass by ref variables for fitbg
+	RunConfig.Berrvect = RunConfig.errvect
+	RunConfig.Bgotovect = RunConfig.gotovect
+
 	RunConfig.bgim = fitbg(RunConfig)
 
-	# verbose = save_verbose
-	# plot_type = save_plottype
-	#
-	# RunConfig.dataim = RunConfig.data - RunConfig.bgim
-	#
-	# #FIXME: stdextr kwargs: stdvar is pass by ref, adjspec is bool, inmask array
-	# stdspec = stdextr(dataim, varim, x1, x2, inmask, stdvar, adjspec)
-	#
-	# if RunConfig.INTEGRATE:
-	# 	#FIXME: where is adjspec defined?
-	# 	spec = adjspec
-	#
-	# else:
-	# 	spec = stdspec
-	#
-	# #FIXME: for pass by reference
-	# save_verbose = verbose
-	# save_plottype = plot_type
-	#
-	# if RunConfig.VERBOSE == 5:
-	# 	cont = input("Stopping at profile fitting. Press any key to continue or (q) to quit.")
-	# 	if cont == 'q' or "Q":
-	# 		sys.exit(0)
-	#
-	# profim = fitprof(dataim, spec, x1, x2, **kwargs)
+	RunConfig.dataim = RunConfig.data - RunConfig.bgim
+	RunConfig.stdspec = stdextr(RunConfig)
+
+	if RunConfig.integrate:
+		RunConfig.spec = RunConfig.adjspec
+	else:
+		RunConfig.spec = RunConfig.stdspec
+
+	if RunConfig.verbose == 5:
+		cont = input("Stopping at profile fitting. Press any key to continue or (q) to quit.")
+		if cont == 'q' or "Q":
+			sys.exit(0)
+
+	#Setup variables for pass by ref
+	RunConfig.Pgotovect = RunConfig.gotovect
+	RunConfig.Perrvect = RunConfig.errvect
+	RunConfig.profim = fitprof(RunConfig)
 	#
 	# verbose = save_verbose
 	# plot_type = save_plottype
@@ -77,8 +72,8 @@ def optspecextr(config_file):
 	#
 	#
 	# #summaryopt, data, varout, bgim, profim, inmask, bgmask, exmask, $
-    # #        difpmask, optspec, stdspec, traceest, $
-    # #        berrvect, perrvect, eerrvect, $
-    # #        verbose, plottype, adjparms = adjparms, debughead = debughead
+	# #        difpmask, optspec, stdspec, traceest, $
+	# #        berrvect, perrvect, eerrvect, $
+	# #        verbose, plottype, adjparms = adjparms, debughead = debughead
 
 	return optspec
