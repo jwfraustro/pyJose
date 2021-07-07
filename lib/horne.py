@@ -20,7 +20,7 @@ from lib.excep import ParameterException
 import numpy as np
 from scipy import interpolate
 
-def stdextr(RunConfig):
+def stdextr(rc):
 	# TODO DOCS: stdextr
 	"""
 	Standard box extraction of spectrum, returns spectrum and variance image, and estimates over bad pixels.
@@ -51,34 +51,34 @@ def stdextr(RunConfig):
 	"""
 
 	# Check Inputs
-	ny = np.shape(RunConfig.dataim)[0]
-	nx = np.shape(RunConfig.dataim)[1]
+	ny = np.shape(rc.dataim)[0]
+	nx = np.shape(rc.dataim)[1]
 
-	if not RunConfig.inmask:
-		RunConfig.inmask = np.ones((nx, ny))
+	if not rc.inmask:
+		rc.inmask = np.ones((nx, ny))
 
-	if RunConfig.x1 < 0 or RunConfig.x1 > RunConfig.x2:
+	if rc.x1 < 0 or rc.x1 > rc.x2:
 		raise ParameterException("x1 must be greater than 0 and less than x2.")
-	if RunConfig.x2 > nx-1 or RunConfig.x2 < RunConfig.x1:
+	if rc.x2 > nx-1 or rc.x2 < rc.x1:
 		raise ParameterException("x2 must be less than nx-1 and greater than x1.")
-	if np.shape(RunConfig.varim)[1] != nx or np.shape(RunConfig.varim)[0] != ny:
+	if np.shape(rc.varim)[1] != nx or np.shape(rc.varim)[0] != ny:
 		raise ParameterException("varim must be the same shape as dataim.")
-	if np.shape(RunConfig.inmask)[1] != nx or np.shape(RunConfig.inmask)[0] != ny:
+	if np.shape(rc.inmask)[1] != nx or np.shape(rc.inmask)[0] != ny:
 		raise ParameterException("inmask must be the same shape as dataim.")
 
 	# Interpolate over bad pixels
-	if RunConfig.adjspec:
-		RunConfig.adjspec = np.array(ny, np.double)
+	if rc.adjspec:
+		rc.adjspec = np.array(ny, np.double)
 		for i in range(ny):
-			bv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 0)
-			gv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 1)
-			datav = RunConfig.dataim[i, RunConfig.x1:RunConfig.x2]
+			bv = np.where(rc.inmask[i, rc.x1:rc.x2] == 0)
+			gv = np.where(rc.inmask[i, rc.x1:rc.x2] == 1)
+			datav = rc.dataim[i, rc.x1:rc.x2]
 			if len(bv) > 0:
 				interpfunc = interpolate.interp1d(gv, datav[gv],  kind='linear')
 				datav[bv] = interpfunc(bv)
-			RunConfig.adjspec[i] = np.sum(datav)
+			rc.adjspec[i] = np.sum(datav)
 
-	RunConfig.stdspec = np.sum((RunConfig.dataim * RunConfig.inmask)[:, RunConfig.x1:RunConfig.x2], 0)
-	RunConfig.stdvar = np.sum((RunConfig.varim * RunConfig.inmask)[:, RunConfig.x1:RunConfig.x2], 0)
+	rc.stdspec = np.sum((rc.dataim * rc.inmask)[:, rc.x1:rc.x2], 0)
+	rc.stdvar = np.sum((rc.varim * rc.inmask)[:, rc.x1:rc.x2], 0)
 
-	return RunConfig.stdspec
+	return rc.stdspec

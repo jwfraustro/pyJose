@@ -103,48 +103,48 @@ def gausseval(x, a, f=None, p=None):
 	return f, p
 
 
-def gaussfunc(RunConfig):
+def gaussfunc(rc):
 	# Check Inputs
-	nx = len(RunConfig.xvals)
+	nx = len(rc.xvals)
 
-	if nx != len(RunConfig.datav):
+	if nx != len(rc.datav):
 		raise VectorLengthException("x_vals", "data_v")
-	if nx != len(RunConfig.varv):
+	if nx != len(rc.varv):
 		raise VectorLengthException("x_vals", "var_v")
-	if nx != len(RunConfig.specv) and len(RunConfig.specv) != 1:
+	if nx != len(rc.specv) and len(rc.specv) != 1:
 		raise VectorLengthException("x_vals", "spec_v")
 	if nx <= 4:
 		raise ParameterException("data_v has less than 4 elements.")
 
 	# Evaluate Coefficients
 	if eval:
-		f = gausseval(RunConfig.xvals, RunConfig.coeff)
+		f = gausseval(rc.xvals, rc.coeff)
 		return f
 
 	# Prepare Fitting
-	if RunConfig.reest:
-		RunConfig.specv = newton_cotes(RunConfig.xvals, RunConfig.datav)  # reestimate spectrum
+	if rc.reest:
+		rc.specv = newton_cotes(rc.xvals, rc.datav)  # reestimate spectrum
 
-	RunConfig.hbw = 4 < nx / 2 - 1  # half box width for estimation
-	RunConfig.sdata = smooth(RunConfig.datav / RunConfig.specv, 2 * RunConfig.hbw + 1)  # estimate gauss
-	RunConfig.shi = max(RunConfig.sdata, RunConfig.chi)
-	RunConfig.slo = min(RunConfig.sdata, RunConfig.cli)
-	if abs(RunConfig.shi) > abs(RunConfig.slo):
-		RunConfig.ci = RunConfig.chi
+	rc.hbw = 4 < nx / 2 - 1  # half box width for estimation
+	rc.sdata = smooth(rc.datav / rc.specv, 2 * rc.hbw + 1)  # estimate gauss
+	rc.shi = max(rc.sdata, rc.chi)
+	rc.slo = min(rc.sdata, rc.cli)
+	if abs(rc.shi) > abs(rc.slo):
+		rc.ci = rc.chi
 	else:
-		RunConfig.ci = RunConfig.cli
-	RunConfig.hi = (RunConfig.datav / RunConfig.specv > RunConfig.sdata)[RunConfig.chi]  # estimated gaussian height
-	RunConfig.center = RunConfig.xvals[RunConfig.ci]  # estimated gaussian center
-	RunConfig.top = np.where(abs(RunConfig.datav / RunConfig.specv) > abs(RunConfig.hi / exp(1)))
-	RunConfig.fwhm = max(RunConfig.xvals[RunConfig.top]) - min(RunConfig.xvals[RunConfig.top]) + 1  # estimated gaussian fullwidthhalfmax
-	RunConfig.base = np.median(RunConfig.sdata)  # estimated base level
+		rc.ci = rc.cli
+	rc.hi = (rc.datav / rc.specv > rc.sdata)[rc.chi]  # estimated gaussian height
+	rc.center = rc.xvals[rc.ci]  # estimated gaussian center
+	rc.top = np.where(abs(rc.datav / rc.specv) > abs(rc.hi / exp(1)))
+	rc.fwhm = max(rc.xvals[rc.top]) - min(rc.xvals[rc.top]) + 1  # estimated gaussian fullwidthhalfmax
+	rc.base = np.median(rc.sdata)  # estimated base level
 
-	RunConfig.coeff = [RunConfig.hi, RunConfig.center, RunConfig.fwhm / 2]  # coefficients for estimate
+	rc.coeff = [rc.hi, rc.center, rc.fwhm / 2]  # coefficients for estimate
 
-	RunConfig.nz = np.where(RunConfig.varv != 0)  # locations to fit
+	rc.nz = np.where(rc.varv != 0)  # locations to fit
 
-	RunConfig.est = RunConfig.datav / RunConfig.specv
-	RunConfig.origcoeff = RunConfig.coeff
+	rc.est = rc.datav / rc.specv
+	rc.origcoeff = rc.coeff
 
 	# FIXME gaussfit fit data
 	#
@@ -174,7 +174,7 @@ def gaussfunc(RunConfig):
 
 	return
 
-def boxcarfunc(RunConfig):
+def boxcarfunc(rc):
 	# TODO DOCS: boxcarfunc
 	"""
 	Function: boxcarfunc
@@ -216,44 +216,44 @@ def boxcarfunc(RunConfig):
 
 	"""
 	# Check inputs
-	nx = len(RunConfig.xvals)
+	nx = len(rc.xvals)
 
-	if len(RunConfig.datav) != nx:
+	if len(rc.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
-	if len(RunConfig.varv) != nx:
+	if len(rc.varv) != nx:
 		raise VectorLengthException("var_v", "x_vals")
-	if len(RunConfig.specv) != nx:
+	if len(rc.specv) != nx:
 		raise VectorLengthException("spec_v", "x_vals")
 
-	RunConfig.coeffv = [np.average(RunConfig.datav / RunConfig.specv)]
+	rc.coeffv = [np.average(rc.datav / rc.specv)]
 
 	# Fit Data
 	if not eval:
-		return median(RunConfig.datav / RunConfig.specv, RunConfig.boxcarhw * 2 + 1)
+		return median(rc.datav / rc.specv, rc.boxcarhw * 2 + 1)
 
 	# Evaluate
 	if np.count_nonzero == 0:
 		return np.zeros(nx)
 
-	gv = RunConfig.specv.nonzero()
+	gv = rc.specv.nonzero()
 
-	goodx = RunConfig.xvals[gv]
+	goodx = rc.xvals[gv]
 
-	estg = smooth(RunConfig.datav[gv] / RunConfig.specv[gv], RunConfig.boxcarhw * 2 + 1)
-	RunConfig.fiteval = np.zeros(nx)
-	bv = np.where(RunConfig.specv == 0)[0]
+	estg = smooth(rc.datav[gv] / rc.specv[gv], rc.boxcarhw * 2 + 1)
+	rc.fiteval = np.zeros(nx)
+	bv = np.where(rc.specv == 0)[0]
 	if len(bv) != 0:
-		badx = RunConfig.xvals[bv]
+		badx = rc.xvals[bv]
 		estb_func = interpol(goodx, estg, kind='linear')
 		estb = estb_func(badx)
-		RunConfig.fiteval[badx] = estb
+		rc.fiteval[badx] = estb
 
-	RunConfig.fiteval[goodx] = estg
+	rc.fiteval[goodx] = estg
 
-	return RunConfig.fiteval
+	return rc.fiteval
 
 
-def centermass(RunConfig):
+def centermass(rc):
 	# TODO DOCS: centermass
 	"""
 	Function: centermass
@@ -282,16 +282,16 @@ def centermass(RunConfig):
 
 
 	"""
-	nx = len(RunConfig.xvals)
+	nx = len(rc.xvals)
 
-	if len(RunConfig.datav) != nx:
+	if len(rc.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
 
-	multv = sum(RunConfig.datav / RunConfig.specv)
-	return sum(RunConfig.xvals * RunConfig.datav / RunConfig.specv / multv)
+	multv = sum(rc.datav / rc.specv)
+	return sum(rc.xvals * rc.datav / rc.specv / multv)
 
 
-def extractfunc(RunConfig):
+def extractfunc(rc):
 	# TODO DOCS: extractfunc
 	"""
 	Name:
@@ -313,28 +313,28 @@ def extractfunc(RunConfig):
 	"""
 	# Check Inputs
 
-	nx = len(RunConfig.datav)
+	nx = len(rc.datav)
 
-	if nx != len(RunConfig.profv):
+	if nx != len(rc.profv):
 		raise VectorLengthException("datav", "profv")
-	if nx != len(RunConfig.varv):
+	if nx != len(rc.varv):
 		raise VectorLengthException("datav", "varv")
 
 	# Always Extract
 
-	gl = np.where(RunConfig.profv != 0)
+	gl = np.where(rc.profv != 0)
 	if (len(gl) == 0):
 		print("No good pixels in datav.")
 		return 0
 
-	denom = np.sum((RunConfig.profv[gl] * RunConfig.profv[gl]) / RunConfig.varv[gl])  # avoid recalc
-	RunConfig.opt = np.sum((RunConfig.profv[gl] * RunConfig.datav[gl]) / RunConfig.varv[gl]) / denom
-	RunConfig.opvar = np.sum(RunConfig.profv[gl]) / denom
+	denom = np.sum((rc.profv[gl] * rc.profv[gl]) / rc.varv[gl])  # avoid recalc
+	rc.opt = np.sum((rc.profv[gl] * rc.datav[gl]) / rc.varv[gl]) / denom
+	rc.opvar = np.sum(rc.profv[gl]) / denom
 
-	return RunConfig.opt
+	return rc.opt
 
 
-def polyeval(RunConfig):
+def polyeval(rc):
 	# TODO DOCS: polyeval
 	"""
 	Name:
@@ -365,9 +365,9 @@ def polyeval(RunConfig):
 	Created on 4/17/2021$
 	"""
 
-	return np.polyval(RunConfig.coeffs, RunConfig.xvals)
+	return np.polyval(rc.coeffs, rc.xvals)
 
-def polyfunc(RunConfig):
+def polyfunc(rc):
 	# TODO DOCS: polyfunc
 	"""
 	Name:
@@ -406,47 +406,47 @@ def polyfunc(RunConfig):
 	Created on 4/17/2021$
 	"""
 	# Check Inputs
-	nx = len(RunConfig.xvals)
+	nx = len(rc.xvals)
 
-	if len(RunConfig.deg) == 0:
+	if len(rc.deg) == 0:
 		deg = 2
 
-	if nx != len(RunConfig.datav):
-		raise VectorLengthException(nx, RunConfig.datav)
-	if nx != len(RunConfig.varv):
-		raise VectorLengthException(nx, RunConfig.varv)
-	if nx != len(RunConfig.specv):
-		raise VectorLengthException(nx, RunConfig.specv)
-	if RunConfig.deg < 0:
+	if nx != len(rc.datav):
+		raise VectorLengthException(nx, rc.datav)
+	if nx != len(rc.varv):
+		raise VectorLengthException(nx, rc.varv)
+	if nx != len(rc.specv):
+		raise VectorLengthException(nx, rc.specv)
+	if rc.deg < 0:
 		raise ParameterException("Degree cannot be < 0.")
-	if nx <= RunConfig.deg:
+	if nx <= rc.deg:
 		raise ParameterException("Number of xvals must be greater than degree.")
 
 	# Evaluate Coefficients
 	if eval:  # evalate given coefficients
-		RunConfig.fiteval = polyeval(RunConfig)
-		zl = np.where(RunConfig.varv == 0.)  # use actual data at varv 0 locations
+		rc.fiteval = polyeval(rc)
+		zl = np.where(rc.varv == 0.)  # use actual data at varv 0 locations
 		if len(zl) > 0:
-			RunConfig.fiteval[zl] = (RunConfig.datav[zl] / RunConfig.specv[zl])
+			rc.fiteval[zl] = (rc.datav[zl] / rc.specv[zl])
 
-		return RunConfig.fiteval
+		return rc.fiteval
 
 	# Fit Data
-	nz = np.where(RunConfig.varv != 0.)  # locations where variance is zero
-	RunConfig.estest = RunConfig.datav / RunConfig.specv  # initial estimate
+	nz = np.where(rc.varv != 0.)  # locations where variance is zero
+	rc.estest = rc.datav / rc.specv  # initial estimate
 	if len(nz > 0):
-		if RunConfig.deg == 0:  # use an average over the column
-			mn = np.average(RunConfig.datav / RunConfig.specv)
-			RunConfig.estest[nz] = mn
-			RunConfig.coeffv = [mn, 0]  # correct for right length
+		if rc.deg == 0:  # use an average over the column
+			mn = np.average(rc.datav / rc.specv)
+			rc.estest[nz] = mn
+			rc.coeffv = [mn, 0]  # correct for right length
 		else:
-			merrors = RunConfig.varv / RunConfig.specv ** 2 > 1E-8  # use all errors for estimation
-			if (RunConfig.deg == 1):
-				RunConfig.coeffv = np.polyfit(RunConfig.xvals, RunConfig.datav / RunConfig.specv, 1)
+			merrors = rc.varv / rc.specv ** 2 > 1E-8  # use all errors for estimation
+			if (rc.deg == 1):
+				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, 1)
 			else:
-				RunConfig.coeffv = np.polyfit(RunConfig.xvals, RunConfig.datav / RunConfig.specv, RunConfig.deg)
+				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, rc.deg)
 
-	return RunConfig.est
+	return rc.est
 
 if __name__ == '__main__':
 	x = [0.0, .12, .22, .32, .36, .40, .44, .54, .64, .70, .80]

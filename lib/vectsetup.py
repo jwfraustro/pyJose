@@ -50,7 +50,7 @@ def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
 	return
 
 
-def fitprof(RunConfig):
+def fitprof(rc):
 	"""
 	Creates an image of normalized spatial profiles, enforces positivity, normalization.
 		If needed, can also shift and expand the data image prior to fitting. By default fits a
@@ -112,48 +112,48 @@ def fitprof(RunConfig):
 	"""
 	# Set defaults
 
-	dims = np.shape(RunConfig.dataim)
+	dims = np.shape(rc.dataim)
 	nx = dims[1]
 	ny = dims[0]
 
-	if not RunConfig.varim:
-		varim = np.ones((ny, nx), np.double)
-	if not RunConfig.inmask:
-		inmask = np.ones((ny, nx), np.byte)
-	if not RunConfig.pthresh:
-		RunConfig.pthresh = 3
-	if not RunConfig.bgim:
-		RunConfig.bgim = np.ones((ny, nx), np.double)
-	if not RunConfig.skyvar:
-		RunConfig.skyvar = np.ones((ny, nx), np.double)
-	if not RunConfig.profdeg:
-		RunConfig.profdeg = 3
-	if not RunConfig.boxcarhw:
-		RunConfig.boxcarhw = 3
-	if not RunConfig.verbose:
-		RunConfig.verbose = 0
-	if not RunConfig.plottype:
-		RunConfig.plottype = 0
-	if not RunConfig.Pgotovect:
-		RunConfig.Pgotovect = -1
+	if not rc.varim:
+		rc.varim = np.ones((ny, nx), np.double)
+	if not rc.inmask:
+		rc.inmask = np.ones((ny, nx), np.byte)
+	if not rc.pthresh:
+		rc.pthresh = 3
+	if not rc.bgim:
+		rc.bgim = np.ones((ny, nx), np.double)
+	if not rc.skyvar:
+		rc.skyvar = np.ones((ny, nx), np.double)
+	if not rc.profdeg:
+		rc.profdeg = 3
+	if not rc.boxcarhw:
+		rc.boxcarhw = 3
+	if not rc.verbose:
+		rc.verbose = 0
+	if not rc.plottype:
+		rc.plottype = 0
+	if not rc.Pgotovect:
+		rc.Pgotovect = -1
 
 	# Check inputs
-	if len(RunConfig.spec) != ny:
+	if len(rc.spec) != ny:
 		raise VectorLengthException("spec", "ny")
-	if RunConfig.x1 < 0 or RunConfig.x1 > RunConfig.x2:
+	if rc.x1 < 0 or rc.x1 > rc.x2:
 		raise ParameterException("x1 must be greater than 0 and less than x2.")
-	if RunConfig.x2 > nx - 1 or RunConfig.x2 < RunConfig.x1:
+	if rc.x2 > nx - 1 or rc.x2 < rc.x1:
 		raise ParameterException("x2 must be less than nx-1 and greater than x1")
-	if np.shape(RunConfig.varim)[1] != nx or np.shape(RunConfig.varim)[0] != ny:
+	if np.shape(rc.varim)[1] != nx or np.shape(rc.varim)[0] != ny:
 		raise ParameterException("varim must be the same dimensions as dataim.")
-	if np.shape(RunConfig.inmask)[1] != nx or np.shape(RunConfig.inmask)[0] != ny:
+	if np.shape(rc.inmask)[1] != nx or np.shape(rc.inmask)[0] != ny:
 		raise ParameterException("inmask must be the same dimensions as dataim.")
-	if np.shape(RunConfig.bgim)[1] != nx or np.shape(RunConfig.bgim)[0] != ny:
+	if np.shape(rc.bgim)[1] != nx or np.shape(rc.bgim)[0] != ny:
 		raise ParameterException("bgim must be the same dimensions as dataim.")
-	if np.shape(RunConfig.skyvar)[1] != nx or np.shape(RunConfig.skyvar)[0] != ny:
+	if np.shape(rc.skyvar)[1] != nx or np.shape(rc.skyvar)[0] != ny:
 		raise ParameterException("skyvar must be the same dimensions as dataim.")
 
-	if RunConfig.verbose > 1:
+	if rc.verbose > 1:
 		print("Beginning profile fitting.")
 
 	# No Profile Smoothing
@@ -161,24 +161,24 @@ def fitprof(RunConfig):
 	# This is not recommended as it is sensitive to the standard extraction's bad pixels.
 	# The image is then normalized and made greater than zero everywhere.
 
-	if RunConfig.noproffit:
-		RunConfig.specim = np.matmul(np.ones(nx), RunConfig.spec)
-		RunConfig.profim = RunConfig.dataim / RunConfig.specim
-		RunConfig.profim = RunConfig.profim * RunConfig.inmask > 0
-		RunConfig.t = np.sum(RunConfig.profim[:, RunConfig.x1:RunConfig.x2], 1)
-		RunConfig.t = np.matmul(np.ones(nx), RunConfig.t)
-		RunConfig.profim = RunConfig.profim / RunConfig.t
-		RunConfig.profmask = RunConfig.inmask
-		RunConfig.difpmask = RunConfig.profmask - RunConfig.profmask
-		RunConfig.Perrvect = np.ones(ny, np.byte)
-		return RunConfig.profim
+	if rc.noproffit:
+		rc.specim = np.matmul(np.ones(nx), rc.spec)
+		rc.profim = rc.dataim / rc.specim
+		rc.profim = rc.profim * rc.inmask > 0
+		rc.t = np.sum(rc.profim[:, rc.x1:rc.x2], 1)
+		rc.t = np.matmul(np.ones(nx), rc.t)
+		rc.profim = rc.profim / rc.t
+		rc.profmask = rc.inmask
+		rc.difpmask = rc.profmask - rc.profmask
+		rc.Perrvect = np.ones(ny, np.byte)
+		return rc.profim
 
 	#TODO FUNC: rest of fitprof
 
 	return
 
 
-def fitbg(RunConfig):
+def fitbg(rc):
 	# TODO DOCS: fitbg
 	"""
 	Creates a sky background image from a data image, interpolated across the spectrum, to create an image of sky lines only.
@@ -194,62 +194,62 @@ def fitbg(RunConfig):
 	Created on 4/17/2021$
 	"""
 	# Fill inputs and verify
-	dims = np.shape(RunConfig.data)
+	dims = np.shape(rc.data)
 
 	nx = dims[0]
 	ny = dims[1]
 
-	if RunConfig.verbose > 1:
+	if rc.verbose > 1:
 		print("Starting background fitting")
 
-	if not RunConfig.bgdeg:
-		RunConfig.bgdeg = 1
-	if not RunConfig.bthresh:
-		RunConfig.bthresh = 3.
-	if not RunConfig.verbose:
-		RunConfig.verbose = 0
-	if not RunConfig.plottype:
-		RunConfig.plottype = 0
-	if not RunConfig.Bgotovect:
-		RunConfig.Bgotovect = -1
-	if not RunConfig.inmask:
-		RunConfig.inmask = np.ones((nx, ny), np.byte)
-	if not RunConfig.varim:
-		RunConfig.varim = np.ones((nx, ny), np.single)
-	if not RunConfig.skyvar:
-		RunConfig.skyvar = np.zeros((nx, ny), np.single)
+	if not rc.bgdeg:
+		rc.bgdeg = 1
+	if not rc.bthresh:
+		rc.bthresh = 3.
+	if not rc.verbose:
+		rc.verbose = 0
+	if not rc.plottype:
+		rc.plottype = 0
+	if not rc.Bgotovect:
+		rc.Bgotovect = -1
+	if not rc.inmask:
+		rc.inmask = np.ones((nx, ny), np.byte)
+	if not rc.varim:
+		rc.varim = np.ones((nx, ny), np.single)
+	if not rc.skyvar:
+		rc.skyvar = np.zeros((nx, ny), np.single)
 
-	if (RunConfig.x1 < 0) or (RunConfig.x1 > RunConfig.x2):
+	if (rc.x1 < 0) or (rc.x1 > rc.x2):
 		raise ParameterException("x1 must be between 0 and x2.")
-	if (RunConfig.x2 > nx - 1) or (RunConfig.x2 < RunConfig.x1):
+	if (rc.x2 > nx - 1) or (rc.x2 < rc.x1):
 		raise ParameterException("x2 cannot be greater than nx-1 or greater than x1.")
-	if (np.shape(RunConfig.varim)[0] != nx) or (np.shape(RunConfig.varim)[1] != ny):
+	if (np.shape(rc.varim)[0] != nx) or (np.shape(rc.varim)[1] != ny):
 		raise ParameterException("Dimensions of varim do not match dataim.")
-	if (np.shape(RunConfig.inmask)[0] != nx) or (np.shape(RunConfig.inmask)[1] != ny):
+	if (np.shape(rc.inmask)[0] != nx) or (np.shape(rc.inmask)[1] != ny):
 		raise ParameterException("Dimensions of inmask do not match dataim.")
-	if (np.shape(RunConfig.skyvar)[0] != nx) or (np.shape(RunConfig.skyvar)[1] != ny):
+	if (np.shape(rc.skyvar)[0] != nx) or (np.shape(rc.skyvar)[1] != ny):
 		raise ParameterException("Dimensions of skyvar do not match dataim.")
-	if RunConfig.plottype not in range(0, 5):
+	if rc.plottype not in range(0, 5):
 		raise ParameterException("Plot type must be a value of 0-4")
 
-	RunConfig.xvals1 = np.arange(RunConfig.x1)
-	RunConfig.xvals2 = np.arange(nx - 1 - RunConfig.x2) + RunConfig.x2 + 1
-	RunConfig.xvals = np.array([*RunConfig.xvals1, *RunConfig.xvals2])
+	rc.xvals1 = np.arange(rc.x1)
+	rc.xvals2 = np.arange(nx - 1 - rc.x2) + rc.x2 + 1
+	rc.xvals = np.array([*rc.xvals1, *rc.xvals2])
 
 	# Subtract bias
-	if RunConfig.nobgfit:
-		RunConfig.bgim = np.ones((nx, ny)) * np.median(RunConfig.data[RunConfig.xvals, :])
-		return RunConfig.bgim
+	if rc.nobgfit:
+		rc.bgim = np.ones((nx, ny)) * np.median(rc.data[rc.xvals, :])
+		return rc.bgim
 
 	# Prepare for row by row fitting
-	RunConfig.yvals = np.arange(ny)
-	RunConfig.bgim = RunConfig.data
-	RunConfig.bgres = np.zeros((nx, ny), np.single)
-	RunConfig.bgmask = np.ones((nx, ny), np.byte)
-	RunConfig.func = "polyfunc"
-	RunConfig.Berrvect = np.ones(ny)
-	RunConfig.bgim[RunConfig.x1:RunConfig.x2, :] = 0
-	RunConfig.allx = np.arange(nx)
+	rc.yvals = np.arange(ny)
+	rc.bgim = rc.data
+	rc.bgres = np.zeros((nx, ny), np.single)
+	rc.bgmask = np.ones((nx, ny), np.byte)
+	rc.func = "polyfunc"
+	rc.Berrvect = np.ones(ny)
+	rc.bgim[rc.x1:rc.x2, :] = 0
+	rc.allx = np.arange(nx)
 
 	# FIT BY ROW
 	# Cut up the data into rows and pass each to procvect. Tell procvect
@@ -257,19 +257,19 @@ def fitbg(RunConfig):
 	# bad pixel rejection, and return the polynomial over all x
 
 	for i in range(ny):
-		RunConfig.datav = RunConfig.data[:, i]
-		RunConfig.maskv = RunConfig.inmask[:, i]
-		RunConfig.varv = RunConfig.varim[:, i]
-		RunConfig.bcrv = RunConfig.bgres[:, i]
-		RunConfig.skyvarv = RunConfig.skyvar[:, i]
-		if (sum(RunConfig.maskv[0:RunConfig.x1]) < 2) or (sum(RunConfig.maskv[RunConfig.x2 + 1:nx]) < 2):
-			RunConfig.parm = 0
+		rc.datav = rc.data[:, i]
+		rc.maskv = rc.inmask[:, i]
+		rc.varv = rc.varim[:, i]
+		rc.bcrv = rc.bgres[:, i]
+		rc.skyvarv = rc.skyvar[:, i]
+		if (sum(rc.maskv[0:rc.x1]) < 2) or (sum(rc.maskv[rc.x2 + 1:nx]) < 2):
+			rc.parm = 0
 		else:
-			RunConfig.parm = RunConfig.bgdeg
-		if i == RunConfig.Bgotovect:
-			RunConfig.verbose = 5
+			rc.parm = rc.bgdeg
+		if i == rc.Bgotovect:
+			rc.verbose = 5
 		# TODO PLOTTING
-		# if RunConfig.PLOTTYPE == 1 or RunConfig.VERBOSE == 5:
+		# if rc.PLOTTYPE == 1 or rc.VERBOSE == 5:
 		# device, window_state = ws
 		# if not ws[12] then window, 12 else wset, 12
 		# !p.multi = [0,2,2,1,1]
@@ -280,16 +280,16 @@ def fitbg(RunConfig):
 		# !p.multi = 0
 		# wait, 0.01
 
-		if RunConfig.verbose == 5:
+		if rc.verbose == 5:
 			return
 		#Setup pass by ref variables for procvect
-		RunConfig.bcrv = RunConfig.crv
-		RunConfig.bthresh = RunConfig.thresh
-		RunConfig.vectnum = i
+		rc.bcrv = rc.crv
+		rc.bthresh = rc.thresh
+		rc.vectnum = i
 
-		RunConfig.bgim[:, i] = procvect(RunConfig)
-		if RunConfig.errflag:
-			RunConfig.Berrvect[i] = 0
+		rc.bgim[:, i] = procvect(rc)
+		if rc.errflag:
+			rc.Berrvect[i] = 0
 
 		# TODO PLOTTING
 		# if plottype[3] then begin
@@ -304,8 +304,8 @@ def fitbg(RunConfig):
 		# wait, 0.001
 		# endif
 
-		RunConfig.varim[RunConfig.xvals, i] = RunConfig.varv[RunConfig.xvals]
-		RunConfig.bgmask[:, i] = RunConfig.maskv
-		RunConfig.bgres[:, i] = RunConfig.bcrv * RunConfig.maskv
+		rc.varim[rc.xvals, i] = rc.varv[rc.xvals]
+		rc.bgmask[:, i] = rc.maskv
+		rc.bgres[:, i] = rc.bcrv * rc.maskv
 
-	return RunConfig.bgim
+	return rc.bgim
