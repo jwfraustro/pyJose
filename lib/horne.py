@@ -70,13 +70,13 @@ def stdextr(RunConfig):
 	if RunConfig.adjspec:
 		RunConfig.adjspec = np.array(ny, np.double)
 		for i in range(ny):
-			RunConfig.bv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 0)
-			RunConfig.gv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 1)
-			RunConfig.datav = RunConfig.dataim[i, RunConfig.x1:RunConfig.x2]
-			if len(RunConfig.bv) > 0:
-				interpfunc = interpolate.interp1d(RunConfig.gv, RunConfig.datav[RunConfig.gv],  kind='linear')
-				RunConfig.datav[RunConfig.bv] = interpfunc(RunConfig.bv)
-			RunConfig.adjspec[i] = np.sum(RunConfig.datav)
+			bv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 0)
+			gv = np.where(RunConfig.inmask[i, RunConfig.x1:RunConfig.x2] == 1)
+			datav = RunConfig.dataim[i, RunConfig.x1:RunConfig.x2]
+			if len(bv) > 0:
+				interpfunc = interpolate.interp1d(gv, datav[gv],  kind='linear')
+				datav[bv] = interpfunc(bv)
+			RunConfig.adjspec[i] = np.sum(datav)
 
 	RunConfig.stdspec = np.sum((RunConfig.dataim * RunConfig.inmask)[:, RunConfig.x1:RunConfig.x2], 0)
 	RunConfig.stdvar = np.sum((RunConfig.varim * RunConfig.inmask)[:, RunConfig.x1:RunConfig.x2], 0)

@@ -235,20 +235,20 @@ def boxcarfunc(RunConfig):
 	if np.count_nonzero == 0:
 		return np.zeros(nx)
 
-	RunConfig.gv = RunConfig.specv.nonzero()
+	gv = RunConfig.specv.nonzero()
 
-	RunConfig.goodx = RunConfig.xvals[RunConfig.gv]
+	goodx = RunConfig.xvals[gv]
 
-	RunConfig.estg = smooth(RunConfig.datav[RunConfig.gv] / RunConfig.spec_v[RunConfig.gv], RunConfig.boxcarhw * 2 + 1)
+	estg = smooth(RunConfig.datav[gv] / RunConfig.specv[gv], RunConfig.boxcarhw * 2 + 1)
 	RunConfig.fiteval = np.zeros(nx)
-	RunConfig.bv = np.where(RunConfig.specv == 0)[0]
-	if len(RunConfig.bv) != 0:
-		RunConfig.badx = RunConfig.xvals[RunConfig.bv]
-		RunConfig.estb_func = interpol(RunConfig.goodx, RunConfig.estg, kind='linear')
-		RunConfig.estb = RunConfig.estb_func(RunConfig.badx)
-		RunConfig.fiteval[RunConfig.badx] = RunConfig.estb
+	bv = np.where(RunConfig.specv == 0)[0]
+	if len(bv) != 0:
+		badx = RunConfig.xvals[bv]
+		estb_func = interpol(goodx, estg, kind='linear')
+		estb = estb_func(badx)
+		RunConfig.fiteval[badx] = estb
 
-	RunConfig.fiteval[RunConfig.goodx] = RunConfig.estg
+	RunConfig.fiteval[goodx] = estg
 
 	return RunConfig.fiteval
 
@@ -287,8 +287,8 @@ def centermass(RunConfig):
 	if len(RunConfig.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
 
-	RunConfig.multv = sum(RunConfig.datav / RunConfig.specv)
-	return sum(RunConfig.xvals * RunConfig.datav / RunConfig.specv / RunConfig.multv)
+	multv = sum(RunConfig.datav / RunConfig.specv)
+	return sum(RunConfig.xvals * RunConfig.datav / RunConfig.specv / multv)
 
 
 def extractfunc(RunConfig):
@@ -322,14 +322,14 @@ def extractfunc(RunConfig):
 
 	# Always Extract
 
-	RunConfig.gl = np.where(RunConfig.profv != 0)
-	if (len(RunConfig.gl) == 0):
+	gl = np.where(RunConfig.profv != 0)
+	if (len(gl) == 0):
 		print("No good pixels in datav.")
 		return 0
 
-	RunConfig.denom = np.sum((RunConfig.profv[RunConfig.gl] * RunConfig.profv[RunConfig.gl]) / RunConfig.varv[RunConfig.gl])  # avoid recalc
-	RunConfig.opt = np.sum((RunConfig.profv[RunConfig.gl] * RunConfig.datav[RunConfig.gl]) / RunConfig.varv[RunConfig.gl]) / RunConfig.denom
-	RunConfig.opvar = np.sum(RunConfig.profv[RunConfig.gl]) / RunConfig.denom
+	denom = np.sum((RunConfig.profv[gl] * RunConfig.profv[gl]) / RunConfig.varv[gl])  # avoid recalc
+	RunConfig.opt = np.sum((RunConfig.profv[gl] * RunConfig.datav[gl]) / RunConfig.varv[gl]) / denom
+	RunConfig.opvar = np.sum(RunConfig.profv[gl]) / denom
 
 	return RunConfig.opt
 
@@ -425,22 +425,22 @@ def polyfunc(RunConfig):
 	# Evaluate Coefficients
 	if eval:  # evalate given coefficients
 		RunConfig.fiteval = polyeval(RunConfig)
-		RunConfig.zl = np.where(RunConfig.varv == 0.)  # use actual data at varv 0 locations
-		if len(RunConfig.zl) > 0:
-			RunConfig.fiteval[RunConfig.zl] = (RunConfig.datav[RunConfig.zl] / RunConfig.specv[RunConfig.zl])
+		zl = np.where(RunConfig.varv == 0.)  # use actual data at varv 0 locations
+		if len(zl) > 0:
+			RunConfig.fiteval[zl] = (RunConfig.datav[zl] / RunConfig.specv[zl])
 
 		return RunConfig.fiteval
 
 	# Fit Data
-	RunConfig.nz = np.where(RunConfig.varv != 0.)  # locations where variance is zero
-	RunConfig.est = RunConfig.datav / RunConfig.specv  # initial estimate
-	if len(RunConfig.nz > 0):
+	nz = np.where(RunConfig.varv != 0.)  # locations where variance is zero
+	RunConfig.estest = RunConfig.datav / RunConfig.specv  # initial estimate
+	if len(nz > 0):
 		if RunConfig.deg == 0:  # use an average over the column
-			RunConfig.mn = np.average(RunConfig.datav / RunConfig.specv)
-			RunConfig.est[RunConfig.nz] = RunConfig.mn
-			RunConfig.coeffv = [RunConfig.mn, 0]  # correct for right length
+			mn = np.average(RunConfig.datav / RunConfig.specv)
+			RunConfig.estest[nz] = mn
+			RunConfig.coeffv = [mn, 0]  # correct for right length
 		else:
-			RunConfig.merrors = RunConfig.varv / RunConfig.specv ** 2 > 1E-8  # use all errors for estimation
+			merrors = RunConfig.varv / RunConfig.specv ** 2 > 1E-8  # use all errors for estimation
 			if (RunConfig.deg == 1):
 				RunConfig.coeffv = np.polyfit(RunConfig.xvals, RunConfig.datav / RunConfig.specv, 1)
 			else:
