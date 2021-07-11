@@ -20,7 +20,8 @@ Created on 5/25/2021$
 import numpy as np
 from lib.excep import ParameterException, VectorLengthException
 from lib.procvect import procvect
-
+from lib.misc import plot_procvect
+from lib.misc import plot_fitbg
 
 def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
 	# TODO DOCS: extrspec
@@ -202,16 +203,6 @@ def fitbg(rc):
 	if rc.verbose > 1:
 		print("Starting background fitting")
 
-	if not rc.bgdeg:
-		rc.bgdeg = 1
-	if not rc.bthresh:
-		rc.bthresh = 3.
-	if not rc.verbose:
-		rc.verbose = 0
-	if not rc.plottype:
-		rc.plottype = 0
-	if not rc.Bgotovect:
-		rc.Bgotovect = -1
 	if not rc.inmask:
 		rc.inmask = np.ones((nx, ny), np.byte)
 	if not rc.varim:
@@ -219,8 +210,6 @@ def fitbg(rc):
 	if not rc.skyvar:
 		rc.skyvar = np.zeros((nx, ny), np.single)
 
-	if (rc.x1 < 0) or (rc.x1 > rc.x2):
-		raise ParameterException("x1 must be between 0 and x2.")
 	if (rc.x2 > nx - 1) or (rc.x2 < rc.x1):
 		raise ParameterException("x2 cannot be greater than nx-1 or greater than x1.")
 	if (np.shape(rc.varim)[0] != nx) or (np.shape(rc.varim)[1] != ny):
@@ -229,8 +218,6 @@ def fitbg(rc):
 		raise ParameterException("Dimensions of inmask do not match dataim.")
 	if (np.shape(rc.skyvar)[0] != nx) or (np.shape(rc.skyvar)[1] != ny):
 		raise ParameterException("Dimensions of skyvar do not match dataim.")
-	if rc.plottype not in range(0, 5):
-		raise ParameterException("Plot type must be a value of 0-4")
 
 	rc.xvals1 = np.arange(rc.x1)
 	rc.xvals2 = np.arange(nx - 1 - rc.x2) + rc.x2 + 1
@@ -247,7 +234,7 @@ def fitbg(rc):
 	rc.bgres = np.zeros((nx, ny), np.single)
 	rc.bgmask = np.ones((nx, ny), np.byte)
 	rc.func = "polyfunc"
-	rc.Berrvect = np.ones(ny)
+	rc.berrvect = np.ones(ny)
 	rc.bgim[rc.x1:rc.x2, :] = 0
 	rc.allx = np.arange(nx)
 
@@ -266,9 +253,12 @@ def fitbg(rc):
 			rc.parm = 0
 		else:
 			rc.parm = rc.bgdeg
-		if i == rc.Bgotovect:
+		if i == rc.bgotovect:
 			rc.verbose = 5
+
+
 		# TODO PLOTTING
+		plot_fitbg(rc.datav, rc.maskv, rc.varv, rc.skyvarv, rc.output_dir)
 		# if rc.PLOTTYPE == 1 or rc.VERBOSE == 5:
 		# device, window_state = ws
 		# if not ws[12] then window, 12 else wset, 12
@@ -282,16 +272,15 @@ def fitbg(rc):
 
 		if rc.verbose == 5:
 			return
-		#Setup pass by ref variables for procvect
-		rc.bcrv = rc.crv
-		rc.bthresh = rc.thresh
+
 		rc.vectnum = i
 
 		rc.bgim[:, i] = procvect(rc)
 		if rc.errflag:
-			rc.Berrvect[i] = 0
+			rc.berrvect[i] = 0
 
 		# TODO PLOTTING
+
 		# if plottype[3] then begin
 		# device, window_state = ws
 		# if not ws[14] then window, 14 else wset, 14

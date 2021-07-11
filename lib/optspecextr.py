@@ -27,11 +27,6 @@ def optspecextr(config_file):
 	# Set up run configuration for variables
 	rc = load_config(config_file)
 
-	if not rc.verbose:
-		rc.verbose = 0
-	if not rc.plottype:
-		rc.plottype = 0
-
 	rc.v0 = rc.rn ** 2
 	rc.x1 = np.round(rc.x1)
 	rc.x2 = np.round(rc.x2)
@@ -39,10 +34,6 @@ def optspecextr(config_file):
 
 	if rc.verbose == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
-
-	# Setup pass by ref variables for fitbg
-	rc.Berrvect = rc.errvect
-	rc.Bgotovect = rc.gotovect
 
 	rc.bgim = fitbg(rc)
 
