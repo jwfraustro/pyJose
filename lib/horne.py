@@ -18,8 +18,9 @@ Created on 5/25/2021$
 """
 from lib.excep import ParameterException
 import numpy as np
+from scipy import interpolate
 
-def stdextr(dataim, varim, x1, x2, inmask=None, stdvar=None, adjspec=None):
+def stdextr(rc):
 	# TODO DOCS: stdextr
 	"""
 	Standard box extraction of spectrum, returns spectrum and variance image, and estimates over bad pixels.
@@ -50,38 +51,34 @@ def stdextr(dataim, varim, x1, x2, inmask=None, stdvar=None, adjspec=None):
 	"""
 
 	# Check Inputs
-	ny = np.shape(dataim)[0]
-	nx = np.shape(dataim)[1]
+	ny = np.shape(rc.dataim)[0]
+	nx = np.shape(rc.dataim)[1]
 
-	if not inmask:
-		inmask = np.ones((nx, ny))
+	if not rc.inmask:
+		rc.inmask = np.ones((nx, ny))
 
-	if x1 < 0 or x1 > x2:
+	if rc.x1 < 0 or rc.x1 > rc.x2:
 		raise ParameterException("x1 must be greater than 0 and less than x2.")
-	if x2 > nx-1 or x2 < x1:
+	if rc.x2 > nx-1 or rc.x2 < rc.x1:
 		raise ParameterException("x2 must be less than nx-1 and greater than x1.")
-	if np.shape(varim)[1] != nx or np.shape(varim)[0] != ny:
+	if np.shape(rc.varim)[1] != nx or np.shape(rc.varim)[0] != ny:
 		raise ParameterException("varim must be the same shape as dataim.")
-	if np.shape(inmask)[1] != nx or np.shape(inmask)[0] != ny:
+	if np.shape(rc.inmask)[1] != nx or np.shape(rc.inmask)[0] != ny:
 		raise ParameterException("inmask must be the same shape as dataim.")
 
 	# Interpolate over bad pixels
-	if adjspec:
-		adjspec = np.array(ny, np.double)
+	if rc.adjspec:
+		rc.adjspec = np.array(ny, np.double)
 		for i in range(ny):
-			bv = np.where(inmask[i, x1:x2] == 0)
-			gv = np.where(inmask[i, x1:x2] == 1)
-			datav = dataim[i, x1:x2]
+			bv = np.where(rc.inmask[i, rc.x1:rc.x2] == 0)
+			gv = np.where(rc.inmask[i, rc.x1:rc.x2] == 1)
+			datav = rc.dataim[i, rc.x1:rc.x2]
 			if len(bv) > 0:
-				# FIXME: interpol
-				# this is just a placeholder so my IDE doesn't yell at me
-				foo = "bar"
-				# datav[bv]=interpol(datav[gv], gv, bv)
-			adjspec[i] = np.sum(datav)
+				interpfunc = interpolate.interp1d(gv, datav[gv],  kind='linear')
+				datav[bv] = interpfunc(bv)
+			rc.adjspec[i] = np.sum(datav)
 
-	#FIXME: check row/col issues
-	#FIXME: pass by reference: stdvar
-	stdspec = np.sum((dataim * inmask)[:, x1:x2], 0)
-	stdvar = np.sum((varim * inmask)[:, x1:x2], 0)
+	rc.stdspec = np.sum((rc.dataim * rc.inmask)[:, rc.x1:rc.x2], 0)
+	rc.stdvar = np.sum((rc.varim * rc.inmask)[:, rc.x1:rc.x2], 0)
 
-	return stdspec
+	return rc.stdspec

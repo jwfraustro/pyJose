@@ -1,39 +1,36 @@
-data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
-rn: 0.0      # Read noise of data frame in DN
-q: 10.0       # Effective number of photos per DN for data frame
-x1: 256      # Start boundary in x of spectrum (inclusive)
-x2: 315      # End Boundary in x of spectrum (inclusive)
-output_dir: 'output'
+rn: null      # Read noise of data frame in DN
+q: null       # Effective number of photos per DN for data frame
+x1: null      # Start boundary in x of spectrum (inclusive)
+x2: null      # End Boundary in x of spectrum (inclusive)
 
 # GENERAL
 skyvar: null      # Variance image of sky (default 0s)
 inmask: null      # User input mask with good pixels=1, bad=0 (default 1s)
-bpct: null        # Set the percentage of bad pixels before kicking out (0.5)
-integrate: null   # Set to integrate over bad pixels when calculating spec for use in the profile fitting
+bpct: 0.5        # Set the percentage of bad pixels before kicking out (0.5)
+integrate: False   # Set to integrate over bad pixels when calculating spec for use in the profile fitting
 varim: null
 
 # BACKGROUND FITTING
-nobgfit: null     # Set to not fit the background
-bthresh: null     # sigma threshold for cosmic ray rejection for bg, (3)
-bgdeg: null       # degree of polynomial fit for interpolation in fitbg (1)
-absthresh: False
+nobgfit: False    # Set to not fit the background
+bthresh: 3        # sigma threshold for cosmic ray rejection for bg, (3)
+bgdeg: 1          # degree of polynomial fit for interpolation in fitbg (1)
 
 # PROFILE FITTING - GEOMETRY ADJUSTMENT
 adjfunc: null     # The name of the function to call with images to modify
 adjoptions:
   level: null     # The amount to expand the array
-  center: null    # Set to 1 to adjust each column so the centers line up (1)
+  center: 1    # Set to 1 to adjust each column so the centers line up (1)
   width: null     # Adjust to reflect each pixel's relative distance from center
                   # according to that row's gaussian width
-  centroid: null  # Set to use centroid fitting instead
-  gaussth: null   # The absolute value of allowable error when fitting a gaussian
+  centroid: False  # Set to use centroid fitting instead
+  gaussth: 0.0.   # The absolute value of allowable error when fitting a gaussian
                   # to the data (3 percent)
   shiftth: null   # The absolute allowable error between a row's center and the
                   # fitted trace
-  degcontr: null  # degree of fit to use when contracting the array (2)
-  centerdeg: null # degree of fit for estimating the shift (2)
-  centerfit: null # set to not fit the estimated centers and not accept the
+  degcontr: 2  # degree of fit to use when contracting the array (2)
+  centerdeg: 2 # degree of fit for estimating the shift (2)
+  centerfit: False # set to not fit the estimated centers and not accept the
                   # the fitting to be correct
 
 adjparms:
@@ -44,20 +41,20 @@ adjparms:
 
 # PROFILE FITTING - SMOOTHING
 noproffit: null # Will not smooth spatial profile if set
-pthresh: null   # Sigma threshold for profile image (3)
-profdeg: null   # Degree to smooth spatial profile (3)
-fitgauss: null  # Set to smooth the profile image using a Gaussian fit
+pthresh: 3   # Sigma threshold for profile image (3)
+profdeg: 3   # Degree to smooth spatial profile (3)
+fitgauss: False  # Set to smooth the profile image using a Gaussian fit
                 # in the spatial direction, instead of a polynomial fit in
                 # wavelength direction
-fitboxcar: null # Set to smooth the profile using a median filter in
+fitboxcar: False # Set to smooth the profile using a median filter in
                 # spectral dimension
-boxcarhw: null  # The half-width of the boxcar fit (5)
+boxcarhw: 5  # The half-width of the boxcar fit (5)
 
 # OPTIMAL EXTRACTION
-ethresh: null   # Sigma threshold for main mask (5)
+ethresh: 5   # Sigma threshold for main mask (5)
 
 # DEBUGGING
-verbose: 2
+verbose: 0
   # Set to level of output
   #   0 - fatal
   #   1 - collect stats
@@ -65,7 +62,7 @@ verbose: 2
   #   3 - output every warning
   #   4 - plot how the data are being used
   #   5 - stop after each iteration
-plottype: null
+plottype: 0
   # Set to the type of plot output to the screen
   #   0 - No Plots
   #   1 - Show a summary of all processed frames
@@ -74,9 +71,9 @@ plottype: null
   #   4 - Use shade_surf to show the fitted and raw data
   #   5 - Show all plots
 
-bgotovect: null # fitbg will halt execution at this row
-pgotovect: null # fitprof will halt execution at this row
-egotovect: null # specext will halt execution at this row
+bgotovect: -1 # fitbg will halt execution at this row
+pgotovect: -1 # fitprof will halt execution at this row
+egotovect: -1 # specext will halt execution at this row
 debughead: null # Text to place at the top of the processed array plot
 
 # Output Options

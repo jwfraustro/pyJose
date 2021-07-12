@@ -1,8 +1,8 @@
 import numpy as np
 from lib.vectfit import polyfunc
+from lib.excep import *
 
-
-def procvect(RunConfig):
+def procvect(rc):
 	# TODO DOCS: procvect
 	"""
 	Name:
@@ -25,86 +25,91 @@ def procvect(RunConfig):
 	Created on 4/17/2021$
 	"""
 	# Set defaults & check inputs
-	nx = np.shape(RunConfig.datav)[0]
+	nx = np.shape(rc.datav)[0]
 
-	if not np.any(RunConfig.xvals):
-		RunConfig.xvals = np.arange(nx)
-	if not np.any(RunConfig.varv):
-		RunConfig.varv = np.ones(nx)
+	if not np.any(rc.xvals):
+		rc.xvals = np.arange(nx)
+	if not np.any(rc.varv):
+		rc.varv = np.ones(nx)
 	try:
-		if not np.any(RunConfig.multv):
-			RunConfig.multv = np.ones(nx)
+		if not np.any(rc.multv):
+			rc.multv = np.ones(nx)
 	except AttributeError:
-		RunConfig.multv = np.ones(nx)
+		rc.multv = np.ones(nx)
 	try:
-		if not np.any(RunConfig.maskv):
-			RunConfig.maskv = np.ones(nx, np.byte)
+		if not np.any(rc.maskv):
+			rc.maskv = np.ones(nx, np.byte)
 	except AttributeError:
-		RunConfig.maskv = np.ones(nx, np.byte)
+		rc.maskv = np.ones(nx, np.byte)
 	try:
-		if not np.any(RunConfig.bgv):
-			RunConfig.bgv = np.array(nx)
+		if not np.any(rc.bgv):
+			rc.bgv = np.array(nx)
 	except AttributeError:
-		RunConfig.bgv = np.array(nx)
-	if not np.any(RunConfig.skyvarv):
-		RunConfig.skyvarv = np.array(nx)
-	if RunConfig.bcrv.shape == 0:
-		RunConfig.bcrv = np.array(nx)
-	if not RunConfig.bthresh:
-		RunConfig.bthresh = 5
-	if not RunConfig.q:
-		RunConfig.q = 1
-	if not RunConfig.v0:
-		RunConfig.v0 = 0
-	if not RunConfig.bpct:
-		RunConfig.bpct = 0.5
-	if not RunConfig.func:
-		RunConfig.func = 'polyfunc'
-	if not RunConfig.verbose:
-		RunConfig.verbose = 0
-	if not RunConfig.plottype:
-		RunConfig.plottype = 0
+		rc.bgv = np.array(nx)
+	if not np.any(rc.skyvarv):
+		rc.skyvarv = np.array(nx)
+	if rc.bcrv.shape == 0:
+		rc.bcrv = np.array(nx)
+	if not rc.bthresh:
+		rc.bthresh = 5
+	if not rc.q:
+		rc.q = 1
+	if not rc.v0:
+		rc.v0 = 0
+	if not rc.bpct:
+		rc.bpct = 0.5
+	if not rc.func:
+		rc.func = 'polyfunc'
+	if not rc.verbose:
+		rc.verbose = 0
+	if not rc.plottype:
+		rc.plottype = 0
 
 	# TODO FUNC: procvect error checking
 
 	# str = ""
-	# str += nx ne n_elements(varv)    ? "varv"    : ""
-	# str += nx ne n_elements(maskv)   ? "maskv"   : ""
-	# str += nx ne n_elements(multv) $
-	#  && 1 ne n_elements(multv)   ? "multv"   : ""
-	# str += nx ne n_elements(bgv)     ? "bgv"     : ""
-	# str += nx ne n_elements(skyvarv) ? "skyvarv" : ""
-	# str += nx ne n_elements(crv)     ? "crv"     : ""
-	# str += 4 ne n_elements(plottype) ? "plottype must have 4 elements" : ""
-	# str += thresh le 0               ? "thresh less than 0" : ""
-	# str += Q le 0                    ? "Q is less or equal to 0" : ""
-	# str += v0 lt 0                   ? "v0 is less than 0" : ""
-	# str += bpct gt 1 || bpct lt 0    ? "bpct is not betwee 0 and 1" : ""
-	# if str ne "" then message, "Poorly formed inputs: " + str
+	if nx != len(rc.varv):
+		raise VectorLengthException("nx", "varv")
+	if nx != len(rc.varv):
+		raise VectorLengthException("nx", "varv")
+	if nx != len(rc.multv) and len(rc.multv) != 1:
+		raise VectorLengthException("nx", "multv")
+	#if nx != len(rc.bgv):
+	#	raise VectorLengthException("nx", "bgv")
+	#if nx != len(rc.skyvarv):
+	#	raise VectorLengthException("nx", "skyvarv")
+	if nx != len(rc.bcrv):
+		raise VectorLengthException("nx", "bcrv")
+	if rc.bthresh < 0:
+		raise ParameterException("Threshold cannot be less than 0.")
+	if rc.q < 0:
+		raise ParameterException("Q cannot be less than 0.")
+	if rc.v0 < 0:
+		raise ParameterException("v0 cannot be less than 0.")
+	if rc.bpct > 1 or rc.bpct < 0:
+		raise ParameterException("bpct must be between 0 and 1.")
 
 	# if a row or column number is given, use that for the debug plot title
-	try:
-		if RunConfig.vectnum:
-			RunConfig.vectnum_s = " at Vector # " + str(RunConfig.vectnum)
-		else:
-			RunConfig.vectnum_s = ""
-	except:
+	if rc.vectnum:
+		rc.vectnum_s = " at Vector # " + str(rc.vectnum)
+	else:
+		rc.vectnum_s = ""
 
 	# if an absolute threshold is used, use that threshold. Else, square
 	# the sigma threshold so it can be used with variance calculations
-	if RunConfig.absthresh:
-		RunConfig.vthresh = RunConfig.thresh
+	if rc.absthresh:
+		rc.vthresh = rc.bthresh
 	else:
-		RunConfig.vthresh = RunConfig.thresh ** 2
+		rc.vthresh = rc.bthresh ** 2
 
 	# set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
 	# or the given percentage good of pixels passed in
-	error_thresh = len(np.where(xvals=1)) * (1 - RunConfig.bpct) > len(RunConfig.xvals) * 0.10 > 6
+	rc.errorthresh = len(np.where(rc.xvals==1)) * (1 - rc.bpct) > len(rc.xvals) * 0.10 > 6
 
-	RunConfig.errflag = 0
-	RunConfig.coeffv = 0
-	RunConfig.funcdone = 1
-	RunConfig.funccount = 0
+	rc.errflag = 0
+	rc.coeffv = 0
+	rc.funcdone = 1
+	rc.funccount = 0
 
 	# MAIN LOOP
 	# on each iteration first check to make sure there is enough good
@@ -118,30 +123,30 @@ def procvect(RunConfig):
 	# largest residual larger then the threshold.  If no bad pixels are
 	# found, exit the loop.
 
-	while RunConfig.funcdone:
-		RunConfig.funcdone = 0
-		RunConfig.goodvals = np.where(RunConfig.maskv[RunConfig.xvals] == 1)
-		if len(RunConfig.goodvals) < RunConfig.error_thresh:
-			RunConfig.fiteval = polyfunc(np.arange(nx), RunConfig.datav, RunConfig.varv,
-			                             RunConfig.multv * RunConfig.maskv, 1, RunConfig.coeffv, RunConfig.parm)
-			if RunConfig.verbose > 2:
-				print("Too many pixels rejected" + RunConfig.vectnum_s)
-			RunConfig.errflag = 1
-			return RunConfig.fiteval
-		RunConfig.fitx = RunConfig.xvals[RunConfig.goodvals]  # xvals for good pixels
-		RunConfig.fitdata = RunConfig.datav[RunConfig.fitx]  # data for good pixels
-		RunConfig.fitvar = RunConfig.varv[RunConfig.fitx]
-		RunConfig.fitmult = RunConfig.multv[RunConfig.fitx]
-		RunConfig.est = polyfunc(RunConfig.fitx, RunConfig.fitdata, RunConfig.fitvar, RunConfig.fitmult, 0,
-		                         RunConfig.coeffv, RunConfig.parm)
+	while rc.funcdone:
+		rc.funcdone = 0
+		rc.goodvals = np.where(rc.maskv[rc.xvals] == 1)
+		if len(rc.goodvals) < rc.errorthresh:
+			rc.deg = 1
+			rc.fiteval = polyfunc(rc)
+			if rc.verbose > 2:
+				print("Too many pixels rejected" + rc.vectnum_s)
+			rc.errflag = 1
+			return rc.fiteval
+		rc.fitx = rc.xvals[rc.goodvals]  # xvals for good pixels
+		rc.fitdata = rc.datav[rc.fitx]  # data for good pixels
+		rc.fitvar = rc.varv[rc.fitx]
+		rc.fitmult = rc.multv[rc.fitx]
+		rc.deg = 0
+		rc.est = polyfunc(rc)
 
-		if RunConfig.absthresh:
-			RunConfig.crv[RunConfig.fitx] = abs(RunConfig.fitdata / RunConfig.fitmult - RunConfig.est)
+		if rc.absthresh:
+			rc.bcrv[rc.fitx] = abs(rc.fitdata / rc.fitmult - rc.est)
 		else:
-			RunConfig.crv[RunConfig.fitx] = (RunConfig.fitdata - RunConfig.fitmult * RunConfig.est) ** 2 / (
-						RunConfig.fitvar > 1E-6)
+			rc.bcrv[rc.fitx] = (rc.fitdata - rc.fitmult * rc.est) ** 2 / (
+						rc.fitvar > 1E-6)
 
-		RunConfig.badpix = np.where(RunConfig.crv[RunConfig.fitx] > RunConfig.vthresh)
+		rc.badpix = np.where(rc.bcrv[rc.fitx] > rc.vthresh)
 
 		# TODO FUNC: procvect plotting
 
@@ -169,20 +174,20 @@ def procvect(RunConfig):
 		#    wait, 0.01
 		# endif
 
-		if RunConfig.verbose == 5:
+		if rc.verbose == 5:
 			return
-		if not RunConfig.noupdate:
-			RunConfig.varv[RunConfig.fitx] = (abs(RunConfig.fitmult * RunConfig.est + RunConfig.bgv[RunConfig.fitx])) / RunConfig.q + RunConfig.v0 + RunConfig.skyvarv[RunConfig.fitx]
-		if RunConfig.badpix:
-			RunConfig.badx = RunConfig.fitx[RunConfig.badpix]
-			RunConfig.maxpos = np.where(RunConfig.crv[RunConfig.badx] == max(RunConfig.crv[RunConfig.badx]))  # only eliminate max pixel
-			RunConfig.maxx = RunConfig.badx[RunConfig.maxpos]
-			RunConfig.funccount = RunConfig.funccount + len(RunConfig.maxx)
-			RunConfig.maskv[RunConfig.maxx] = 0
-			RunConfig.funcdone = 1
+		if not rc.noupdate:
+			rc.varv[rc.fitx] = (abs(rc.fitmult * rc.est + rc.bgv[rc.fitx])) / rc.q + rc.v0 + rc.skyvarv[rc.fitx]
+		if rc.badpix:
+			rc.badx = rc.fitx[rc.badpix]
+			rc.maxpos = np.where(rc.bcrv[rc.badx] == max(rc.bcrv[rc.badx]))  # only eliminate max pixel
+			rc.maxx = rc.badx[rc.maxpos]
+			rc.funccount = rc.funccount + len(rc.maxx)
+			rc.maskv[rc.maxx] = 0
+			rc.funcdone = 1
 
-	RunConfig.fiteval = polyfunc(np.arange(nx), RunConfig.datav, RunConfig.varv, RunConfig.multv * RunConfig.maskv, 1, RunConfig.coeffv, RunConfig.parm)
+	rc.fiteval = polyfunc(rc)
 
-	if not RunConfig.noupdate:
-		RunConfig.varv = (abs(RunConfig.multv * RunConfig.fiteval + RunConfig.bgv)) / RunConfig.q + RunConfig.v0 + RunConfig.skyvarv  # get var for all pixels
-	return RunConfig.fiteval
+	if not rc.noupdate:
+		rc.varv = (abs(rc.multv * rc.fiteval + rc.bgv)) / rc.q + rc.v0 + rc.skyvarv  # get var for all pixels
+	return rc.fiteval

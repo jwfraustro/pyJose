@@ -1,0 +1,75 @@
+function ADJGAUSS, InArray, OptInfo, AdjParms = AdjParms, $
+  AdjOptions = AdjOptions, Revert = Revert
+
+function BOXCARFUNC, xvals, datav, varv, specv, eval, coeffv, boxcarhw
+
+function centermass, xvals, datav, varv, specv
+
+function extractfunc, xvals, datav, varv, profv, eval, coeffv, opvar
+
+function EXTRSPEC, dataim, profim, varim, v0, Q, x1, x2, $
+                   bgim = bgim, bpct = bpct, errvect = errvect, $
+                   ethresh = ethresh, exmask = exmask, exres = exres, $
+                   gotovect = gotovect, inmask = inmask, opvar = $
+                   opvar, plottype = plottype, skyvar = skyvar, $
+                   verbose = verbose
+
+function FINDSHIFT, dataim, centerdeg = centerdeg, $
+                    centerfit = centerfit, centroid = centroid, $
+                    gaussth = gaussth, height = height, inmask = $
+                    inmask, plottype = plottype, shiftth = shiftth, $
+                    shmask = shmask, spec = spec, tracemask = $
+                    tracemask, varim = varim, verbose = verbose, $
+                    widthth = widthth, widthv = widthv, x1 = x1, x2 = x2
+
+function FITBG, dataim, x1, x2, bgdeg = bgdeg, bgmask = bgmask, bgres $
+                = bgres, bpct = bpct, bthresh = bthresh, errvect = $
+                errvect, gotovect = gotovect, inmask = inmask, nobgfit $
+                = nobgfit, plottype = plottype, q = q, skyvar = $
+                skyvar, varim = varim, verbose = verbose, v0 = v0
+
+function FITPROF, Dataim, Spec, x1, x2, adjfunc = adjfunc, $
+                  adjparms = adjparms, adjoptions = adjoptions, $
+                  bgim = bgim, boxcarhw = boxcarhw, bpct = bpct, $
+                  difpmask = difpmask, errvect = errvect, fitboxcar = $
+                  fitboxcar, fitgauss = fitgauss, gotovect = gotovect, $
+                  inmask = inmask, noproffit = noproffit, plottype = $
+                  plottype, profdeg = profdeg, profmask = profmask, $
+                  profres = profres, pthresh = pthresh, q = q, skyvar $
+                  = skyvar, varim = varim, verbose = verbose, v0 = v0
+
+function GAUSSFUNC, xvals, datav, varv, specv, eval, coeff, reest
+
+function OPTSPECEXTR, data, var, rn, q, x1, x2, $
+  adjfunc = adjfunc, adjoptions = adjoptions, adjparms = adjparms,   $
+  berrvect = berrvect, bgdeg = bgdeg, bgim = bgim, bgmask = bgmask, $
+  bgotovect = bgotovect, bgres = bgres, boxcarhw = boxcarhw, bpct = $
+  bpct, bthresh = bthresh, debughead = debughead, difpmask = $
+  difpmask, eerrvect =  eerrvect, egotovect = egotovect, ethresh = $
+  ethresh, exmask = exmask, exres = exres, fitboxcar = fitboxcar, $
+  fitgauss = fitgauss, inmask = inmask, integrate = integrate, $
+  nobgfit = nobgfit, noproffit = noproffit, opvar = opvar, perrvect $
+  = perrvect, pgotovect = pgotovect, plottype = plottype, profdeg = $
+  profdeg, profim = profim, profmask = profmask, profres = profres, $
+  pthresh = pthresh, skyvar = skyvar, stdspec = stdspec, stdvar = $
+  stdvar, varout = varout, verbose = verbose
+
+function polyeval,coeffs,xvals
+
+function POLYFUNC, xvals, datav, varv, specv, eval, coeffv, deg
+
+function PROCVECT, datav, absthresh = absthresh, bgv = bgv, $
+                   bpct = bpct, coeffv = coeffv, crv = crv, errflag = $
+                   errflag, extract = extract, func = func, maskv = $
+                   maskv, multv = multv, noupdate = noupdate, opvar = $
+                   opvar, parm = parm, plottype = plottype, q = q, $
+                   skyvarv = skyvarv, thresh = thresh, v0 = v0, varv = $
+                   varv, vectnum = vectnum, verbose = verbose, xvals = $
+                   xvals
+
+function SAMPLESHIFT, data, inx, outx, fitsample = fitsample, $
+  fitinterp = fitinterp, fitaverage = fitaverage, degcontr = degcontr, $
+  fitspline = fitspline, fitpoly = fitpoly, fitcubic = fitcubic
+
+function stdextr, dataim, varim, x1, x2, inmask = inmask, stdvar = stdvar, $
+                  adjspec = adjspec

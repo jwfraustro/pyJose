@@ -103,48 +103,48 @@ def gausseval(x, a, f=None, p=None):
 	return f, p
 
 
-def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
+def gaussfunc(rc):
 	# Check Inputs
-	nx = len(xvals)
+	nx = len(rc.xvals)
 
-	if nx != len(datav):
+	if nx != len(rc.datav):
 		raise VectorLengthException("x_vals", "data_v")
-	if nx != len(varv):
+	if nx != len(rc.varv):
 		raise VectorLengthException("x_vals", "var_v")
-	if nx != len(specv) and len(specv) != 1:
+	if nx != len(rc.specv) and len(rc.specv) != 1:
 		raise VectorLengthException("x_vals", "spec_v")
 	if nx <= 4:
 		raise ParameterException("data_v has less than 4 elements.")
 
 	# Evaluate Coefficients
 	if eval:
-		f = gausseval(xvals, coeff)
+		f = gausseval(rc.xvals, rc.coeff)
 		return f
 
-		# Prepare Fitting
-		# if reest:
-		specv = newton_cotes(xvals, datav)  # reestimate spectrum
+	# Prepare Fitting
+	if rc.reest:
+		rc.specv = newton_cotes(rc.xvals, rc.datav)  # reestimate spectrum
 
-	hbw = 4 < nx / 2 - 1  # half box width for estimation
-	sdata = smooth(datav / specv, 2 * hbw + 1)  # estimate gauss
-	shi = max(sdata, chi)
-	slo = min(sdata, cli)
-	if abs(shi) > abs(slo):
-		ci = chi
+	rc.hbw = 4 < nx / 2 - 1  # half box width for estimation
+	rc.sdata = smooth(rc.datav / rc.specv, 2 * rc.hbw + 1)  # estimate gauss
+	rc.shi = max(rc.sdata, rc.chi)
+	rc.slo = min(rc.sdata, rc.cli)
+	if abs(rc.shi) > abs(rc.slo):
+		rc.ci = rc.chi
 	else:
-		ci = cli
-	hi = (datav / specv > sdata)[chi]  # estimated gaussian height
-	center = xvals[ci]  # estimated gaussian center
-	top = np.where(abs(datav / specv) > abs(hi / exp(1)))
-	fwhm = max(xvals[top]) - min(xvals[top]) + 1  # estimated gaussian fullwidthhalfmax
-	base = np.median(sdata)  # estimated base level
+		rc.ci = rc.cli
+	rc.hi = (rc.datav / rc.specv > rc.sdata)[rc.chi]  # estimated gaussian height
+	rc.center = rc.xvals[rc.ci]  # estimated gaussian center
+	rc.top = np.where(abs(rc.datav / rc.specv) > abs(rc.hi / exp(1)))
+	rc.fwhm = max(rc.xvals[rc.top]) - min(rc.xvals[rc.top]) + 1  # estimated gaussian fullwidthhalfmax
+	rc.base = np.median(rc.sdata)  # estimated base level
 
-	coeff = [hi, center, fwhm / 2]  # coefficients for estimate
+	rc.coeff = [rc.hi, rc.center, rc.fwhm / 2]  # coefficients for estimate
 
-	nz = np.where(varv != 0)  # locations to fit
+	rc.nz = np.where(rc.varv != 0)  # locations to fit
 
-	est = datav / specv
-	origcoeff = coeff
+	rc.est = rc.datav / rc.specv
+	rc.origcoeff = rc.coeff
 
 	# FIXME gaussfit fit data
 	#
@@ -174,7 +174,7 @@ def gaussfunc(xvals, datav, varv, specv, eval, coeff, reest=None):
 
 	return
 
-def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
+def boxcarfunc(rc):
 	# TODO DOCS: boxcarfunc
 	"""
 	Function: boxcarfunc
@@ -216,44 +216,44 @@ def boxcarfunc(x_vals, data_v, var_v, spec_v, eval, coeffv, boxcar_hw):
 
 	"""
 	# Check inputs
-	nx = len(x_vals)
+	nx = len(rc.xvals)
 
-	if len(data_v) != nx:
+	if len(rc.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
-	if len(var_v) != nx:
+	if len(rc.varv) != nx:
 		raise VectorLengthException("var_v", "x_vals")
-	if len(spec_v) != nx:
+	if len(rc.specv) != nx:
 		raise VectorLengthException("spec_v", "x_vals")
 
-	coeffv = [np.average(data_v / spec_v)]
+	rc.coeffv = [np.average(rc.datav / rc.specv)]
 
 	# Fit Data
 	if not eval:
-		return median(data_v / spec_v, boxcar_hw * 2 + 1)
+		return median(rc.datav / rc.specv, rc.boxcarhw * 2 + 1)
 
 	# Evaluate
 	if np.count_nonzero == 0:
 		return np.zeros(nx)
 
-	gv = spec_v.nonzero()
+	gv = rc.specv.nonzero()
 
-	goodx = x_vals[gv]
+	goodx = rc.xvals[gv]
 
-	estg = smooth(data_v[gv] / spec_v[gv], boxcar_hw * 2 + 1)
-	fiteval = np.zeros(nx)
-	bv = np.where(spec_v == 0)[0]
+	estg = smooth(rc.datav[gv] / rc.specv[gv], rc.boxcarhw * 2 + 1)
+	rc.fiteval = np.zeros(nx)
+	bv = np.where(rc.specv == 0)[0]
 	if len(bv) != 0:
-		badx = x_vals[bv]
+		badx = rc.xvals[bv]
 		estb_func = interpol(goodx, estg, kind='linear')
 		estb = estb_func(badx)
-		fiteval[badx] = estb
+		rc.fiteval[badx] = estb
 
-	fiteval[goodx] = estg
+	rc.fiteval[goodx] = estg
 
-	return fiteval
+	return rc.fiteval
 
 
-def centermass(x_vals, data_v, var_v, spec_v):
+def centermass(rc):
 	# TODO DOCS: centermass
 	"""
 	Function: centermass
@@ -282,16 +282,16 @@ def centermass(x_vals, data_v, var_v, spec_v):
 
 
 	"""
-	nx = len(x_vals)
+	nx = len(rc.xvals)
 
-	if len(data_v) != nx:
+	if len(rc.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
 
-	multv = sum(data_v / spec_v)
-	return sum(x_vals * data_v / spec_v / multv)
+	rc.multv = sum(rc.datav / rc.specv)
+	return sum(rc.xvals * rc.datav / rc.specv / rc.multv)
 
 
-def extractfunc(xvals, datav, varv, profv, eval, coeffv, opvar):
+def extractfunc(rc):
 	# TODO DOCS: extractfunc
 	"""
 	Name:
@@ -313,28 +313,28 @@ def extractfunc(xvals, datav, varv, profv, eval, coeffv, opvar):
 	"""
 	# Check Inputs
 
-	nx = len(datav)
+	nx = len(rc.datav)
 
-	if nx != len(profv):
+	if nx != len(rc.profv):
 		raise VectorLengthException("datav", "profv")
-	if nx != len(varv):
+	if nx != len(rc.varv):
 		raise VectorLengthException("datav", "varv")
 
 	# Always Extract
 
-	gl = np.where(profv != 0)
+	gl = np.where(rc.profv != 0)
 	if (len(gl) == 0):
 		print("No good pixels in datav.")
 		return 0
 
-	denom = np.sum((profv[gl] * profv[gl]) / varv[gl])  # avoid recalc
-	opt = np.sum((profv[gl] * datav[gl]) / varv[gl]) / denom
-	opvar = np.sum(profv[gl]) / denom
+	denom = np.sum((rc.profv[gl] * rc.profv[gl]) / rc.varv[gl])  # avoid recalc
+	rc.opt = np.sum((rc.profv[gl] * rc.datav[gl]) / rc.varv[gl]) / denom
+	rc.opvar = np.sum(rc.profv[gl]) / denom
 
-	return opt
+	return rc.opt
 
 
-def polyeval(coeffs, xvals):
+def polyeval(rc):
 	# TODO DOCS: polyeval
 	"""
 	Name:
@@ -365,9 +365,9 @@ def polyeval(coeffs, xvals):
 	Created on 4/17/2021$
 	"""
 
-	return np.polyval(coeffs, xvals)
+	return np.polyval(rc.coeffs, rc.xvals)
 
-def polyfunc(xvals, datav, varv, specv, eval, coeffv, deg):
+def polyfunc(rc):
 	# TODO DOCS: polyfunc
 	"""
 	Name:
@@ -406,52 +406,47 @@ def polyfunc(xvals, datav, varv, specv, eval, coeffv, deg):
 	Created on 4/17/2021$
 	"""
 	# Check Inputs
-	nx = len(xvals)
+	nx = len(rc.xvals)
 
-	if len(deg) == 0:
-		deg = 2
+	if not rc.deg:
+		rc.deg = 2
 
-	if nx != len(datav):
-		raise VectorLengthException(nx, datav)
-	if nx != len(varv):
-		raise VectorLengthException(nx, varv)
-	if nx != len(specv):
-		raise VectorLengthException(nx, specv)
-	if deg < 0:
+	if nx != rc.datav.shape[0]:
+		raise VectorLengthException(nx, rc.datav.shape[0])
+	if nx != len(rc.varv):
+		raise VectorLengthException(nx, rc.varv)
+	if nx != len(rc.specv):
+		raise VectorLengthException(nx, rc.specv)
+	if rc.deg < 0:
 		raise ParameterException("Degree cannot be < 0.")
-	if nx <= deg:
+	if nx <= rc.deg:
 		raise ParameterException("Number of xvals must be greater than degree.")
 
 	# Evaluate Coefficients
 	if eval:  # evalate given coefficients
-		fiteval = polyeval(coeffv, xvals)
-		zl = np.where(varv == 0.)  # use actual data at varv 0 locations
+		rc.fiteval = polyeval(rc)
+		zl = np.where(rc.varv == 0.)  # use actual data at varv 0 locations
 		if len(zl) > 0:
-			fiteval[zl] = (datav[zl] / specv[zl])
+			rc.fiteval[zl] = (rc.datav[zl] / rc.specv[zl])
 
-		return fiteval
+		return rc.fiteval
 
 	# Fit Data
-	nz = np.where(varv != 0.)  # locations where variance is zero
-	est = datav / specv  # initial estimate
+	nz = np.where(rc.varv != 0.)  # locations where variance is zero
+	rc.estest = rc.datav / rc.specv  # initial estimate
 	if len(nz > 0):
-		if deg == 0:  # use an average over the column
-			mn = np.average(datav / specv)
-			est[nz] = mn
-			coeffv = [mn, 0]  # correct for right length
+		if rc.deg == 0:  # use an average over the column
+			mn = np.average(rc.datav / rc.specv)
+			rc.estest[nz] = mn
+			rc.coeffv = [mn, 0]  # correct for right length
 		else:
-			merrors = varv / specv ** 2 > 1E-8  # use all errors for estimation
-			if (deg == 1):
-				coeffv = np.polyfit(xvals, datav / specv, 1)
+			merrors = rc.varv / rc.specv ** 2 > 1E-8  # use all errors for estimation
+			if (rc.deg == 1):
+				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, 1)
 			else:
-				coeffv = np.polyfit(xvals, datav / specv, deg)
+				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, rc.deg)
 
-	# FIXME: Where does estz in the following from the original come from? It's never declared...
-	# coeffv = linfit(xvals, datav/specv, $
-	#                       measure_errors = merrors, yfit = estz)
-	# coeffv = poly_fit(xvals, datav/specv, deg, /double, $
-	#                         yfit = estz, yband = yband, measure_errors = merrors)
-	return est
+	return rc.est
 
 if __name__ == '__main__':
 	x = [0.0, .12, .22, .32, .36, .40, .44, .54, .64, .70, .80]
