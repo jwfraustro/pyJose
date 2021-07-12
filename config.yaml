@@ -17,6 +17,7 @@ varim: null
 nobgfit: null     # Set to not fit the background
 bthresh: null     # sigma threshold for cosmic ray rejection for bg, (3)
 bgdeg: null       # degree of polynomial fit for interpolation in fitbg (1)
+absthresh: False
 
 # PROFILE FITTING - GEOMETRY ADJUSTMENT
 adjfunc: null     # The name of the function to call with images to modify

@@ -63,7 +63,19 @@ def plot_fitbg(datav, maskv, varv, skyvarv, output_dir):
 	#TODO Save plot
 	#plt.imsave(fig, os.path.join(output_dir, "fitbg_plot.png"))
 
-def plot_procvect(bgim, yvals, allx, sy1, sy2, title, xtitle, ytitle):
+def plot_procvect(bgim, yvals, allx, sy1, sy2, i):
+
+	fig, ax = plt.subplots(subplot_kw={'projection':'3d'})
+
+	surf = ax.plot_surface(allx, yvals[sy1:sy2], bgim[:, sy1:sy2], antialiased=False)
+
+	fig.suptitle("Background after #"+str(i))
+	ax.xlabel = "X pixel location"
+	ax.ylabel = "Y (Prefit and Postfit)"
+
+	plt.show()
+	#TODO Save plot
+	#plt.imsave(fig, os.path.join(output_dir, "procvect_plot.png"))
 
 	return
 def plotting():

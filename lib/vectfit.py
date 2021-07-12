@@ -287,8 +287,8 @@ def centermass(rc):
 	if len(rc.datav) != nx:
 		raise VectorLengthException("data_v", "x_vals")
 
-	multv = sum(rc.datav / rc.specv)
-	return sum(rc.xvals * rc.datav / rc.specv / multv)
+	rc.multv = sum(rc.datav / rc.specv)
+	return sum(rc.xvals * rc.datav / rc.specv / rc.multv)
 
 
 def extractfunc(rc):
@@ -408,11 +408,11 @@ def polyfunc(rc):
 	# Check Inputs
 	nx = len(rc.xvals)
 
-	if len(rc.deg) == 0:
-		deg = 2
+	if not rc.deg:
+		rc.deg = 2
 
-	if nx != len(rc.datav):
-		raise VectorLengthException(nx, rc.datav)
+	if nx != rc.datav.shape[0]:
+		raise VectorLengthException(nx, rc.datav.shape[0])
 	if nx != len(rc.varv):
 		raise VectorLengthException(nx, rc.varv)
 	if nx != len(rc.specv):

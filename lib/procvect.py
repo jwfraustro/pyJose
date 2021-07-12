@@ -74,10 +74,10 @@ def procvect(rc):
 		raise VectorLengthException("nx", "varv")
 	if nx != len(rc.multv) and len(rc.multv) != 1:
 		raise VectorLengthException("nx", "multv")
-	if nx != len(rc.bgv):
-		raise VectorLengthException("nx", "bgv")
-	if nx != len(rc.skyvarv):
-		raise VectorLengthException("nx", "skyvarv")
+	#if nx != len(rc.bgv):
+	#	raise VectorLengthException("nx", "bgv")
+	#if nx != len(rc.skyvarv):
+	#	raise VectorLengthException("nx", "skyvarv")
 	if nx != len(rc.bcrv):
 		raise VectorLengthException("nx", "bcrv")
 	if rc.bthresh < 0:
@@ -104,7 +104,7 @@ def procvect(rc):
 
 	# set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
 	# or the given percentage good of pixels passed in
-	rc.error_thresh = len(np.where(xvals=1)) * (1 - rc.bpct) > len(rc.xvals) * 0.10 > 6
+	rc.errorthresh = len(np.where(rc.xvals==1)) * (1 - rc.bpct) > len(rc.xvals) * 0.10 > 6
 
 	rc.errflag = 0
 	rc.coeffv = 0
@@ -126,9 +126,9 @@ def procvect(rc):
 	while rc.funcdone:
 		rc.funcdone = 0
 		rc.goodvals = np.where(rc.maskv[rc.xvals] == 1)
-		if len(rc.goodvals) < rc.error_thresh:
-			rc.fiteval = polyfunc(np.arange(nx), rc.datav, rc.varv,
-			                             rc.multv * rc.maskv, 1, rc.coeffv, rc.parm)
+		if len(rc.goodvals) < rc.errorthresh:
+			rc.deg = 1
+			rc.fiteval = polyfunc(rc)
 			if rc.verbose > 2:
 				print("Too many pixels rejected" + rc.vectnum_s)
 			rc.errflag = 1
@@ -137,8 +137,8 @@ def procvect(rc):
 		rc.fitdata = rc.datav[rc.fitx]  # data for good pixels
 		rc.fitvar = rc.varv[rc.fitx]
 		rc.fitmult = rc.multv[rc.fitx]
-		rc.est = polyfunc(rc.fitx, rc.fitdata, rc.fitvar, rc.fitmult, 0,
-		                         rc.coeffv, rc.parm)
+		rc.deg = 0
+		rc.est = polyfunc(rc)
 
 		if rc.absthresh:
 			rc.bcrv[rc.fitx] = abs(rc.fitdata / rc.fitmult - rc.est)
@@ -180,13 +180,13 @@ def procvect(rc):
 			rc.varv[rc.fitx] = (abs(rc.fitmult * rc.est + rc.bgv[rc.fitx])) / rc.q + rc.v0 + rc.skyvarv[rc.fitx]
 		if rc.badpix:
 			rc.badx = rc.fitx[rc.badpix]
-			rc.maxpos = np.where(rc.crv[rc.badx] == max(rc.crv[rc.badx]))  # only eliminate max pixel
+			rc.maxpos = np.where(rc.bcrv[rc.badx] == max(rc.bcrv[rc.badx]))  # only eliminate max pixel
 			rc.maxx = rc.badx[rc.maxpos]
 			rc.funccount = rc.funccount + len(rc.maxx)
 			rc.maskv[rc.maxx] = 0
 			rc.funcdone = 1
 
-	rc.fiteval = polyfunc(np.arange(nx), rc.datav, rc.varv, rc.multv * rc.maskv, 1, rc.coeffv, rc.parm)
+	rc.fiteval = polyfunc(rc)
 
 	if not rc.noupdate:
 		rc.varv = (abs(rc.multv * rc.fiteval + rc.bgv)) / rc.q + rc.v0 + rc.skyvarv  # get var for all pixels

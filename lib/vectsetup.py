@@ -243,7 +243,7 @@ def fitbg(rc):
 	# to use polyfunc to estimate the background. Procvect will handle
 	# bad pixel rejection, and return the polynomial over all x
 
-	for i in range(ny):
+	for i in range(nx):
 		rc.datav = rc.data[:, i]
 		rc.maskv = rc.inmask[:, i]
 		rc.varv = rc.varim[:, i]
@@ -257,18 +257,7 @@ def fitbg(rc):
 			rc.verbose = 5
 
 
-		# TODO PLOTTING
 		plot_fitbg(rc.datav, rc.maskv, rc.varv, rc.skyvarv, rc.output_dir)
-		# if rc.PLOTTYPE == 1 or rc.VERBOSE == 5:
-		# device, window_state = ws
-		# if not ws[12] then window, 12 else wset, 12
-		# !p.multi = [0,2,2,1,1]
-		# plot, datav, title = 'Data Vector for BG Fitting', / ystyle
-		# plot, maskv, title = 'Input Mask', yrange = [0.0, 1.1]
-		# plot, varv, title = 'Variance', / ystyle
-		# plot, skyvarv, title = 'Sky variance', / ystyle
-		# !p.multi = 0
-		# wait, 0.01
 
 		if rc.verbose == 5:
 			return
@@ -281,11 +270,12 @@ def fitbg(rc):
 
 		# TODO PLOTTING
 
-		# if plottype[3] then begin
-		# device, window_state = ws
-		# if not ws[14] then window, 14 else wset, 14
-		# sy1 = (i - 10) > 0
-		# sy2 = (i + 10) < ny - 1
+		if rc.plottype == 3:
+
+			sy1 = max((i - 10), 0)
+			sy2 = min((i + 10), ny - 1)
+
+			plot_procvect(rc.bgim, rc.yvals, rc.allx, sy1, sy2, i)
 		# shade_surf, bgim[*, sy1:sy2], allx, yvals[sy1:sy2], charsize = 3,  $
 		# title = "Background after # " + strtrim(i, 1), $
 		# xtitle = "X pixel location", $
