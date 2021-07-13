@@ -200,6 +200,7 @@ for i = 0, ny-1 do begin
   parm = (total(maskv[0:x1-1]) lt 2 or total(maskv[x2+1:nx-1]) lt 2) ? $
          0 : bgdeg             ; if too few good pixels then average
   if (i eq gotovect) then verbose = 5
+
   if plottype[1] or verbose eq 5 then begin ; plot debugging info
     device, window_state = ws   ; get window state
     if not ws[12] then window, 12 else wset, 12

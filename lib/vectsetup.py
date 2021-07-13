@@ -197,8 +197,8 @@ def fitbg(rc):
 	# Fill inputs and verify
 	dims = np.shape(rc.data)
 
-	nx = dims[0]
-	ny = dims[1]
+	nx = dims[1]
+	ny = dims[0]
 
 	if rc.verbose > 1:
 		print("Starting background fitting")
@@ -225,7 +225,7 @@ def fitbg(rc):
 
 	# Subtract bias
 	if rc.nobgfit:
-		rc.bgim = np.ones((nx, ny)) * np.median(rc.data[rc.xvals, :])
+		rc.bgim = np.ones((nx, ny)) * np.median(rc.data[:, rc.xvals])
 		return rc.bgim
 
 	# Prepare for row by row fitting
@@ -235,7 +235,7 @@ def fitbg(rc):
 	rc.bgmask = np.ones((nx, ny), np.byte)
 	rc.func = "polyfunc"
 	rc.berrvect = np.ones(ny)
-	rc.bgim[rc.x1:rc.x2, :] = 0
+	rc.bgim[:, rc.x1:rc.x2] = 0
 	rc.allx = np.arange(nx)
 
 	# FIT BY ROW
@@ -243,12 +243,12 @@ def fitbg(rc):
 	# to use polyfunc to estimate the background. Procvect will handle
 	# bad pixel rejection, and return the polynomial over all x
 
-	for i in range(nx):
-		rc.datav = rc.data[:, i]
-		rc.maskv = rc.inmask[:, i]
-		rc.varv = rc.varim[:, i]
-		rc.bcrv = rc.bgres[:, i]
-		rc.skyvarv = rc.skyvar[:, i]
+	for i in range(ny):
+		rc.datav = rc.data[i, :]
+		rc.maskv = rc.inmask[i,:]
+		rc.varv = rc.varim[i,:]
+		rc.bcrv = rc.bgres[i,:]
+		rc.skyvarv = rc.skyvar[i,:]
 		if (sum(rc.maskv[0:rc.x1]) < 2) or (sum(rc.maskv[rc.x2 + 1:nx]) < 2):
 			rc.parm = 0
 		else:
@@ -264,7 +264,8 @@ def fitbg(rc):
 
 		rc.vectnum = i
 
-		rc.bgim[:, i] = procvect(rc)
+		rc.bgim[i, :] = procvect(rc)
+
 		if rc.errflag:
 			rc.berrvect[i] = 0
 

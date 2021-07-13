@@ -25,7 +25,7 @@ def procvect(rc):
 	Created on 4/17/2021$
 	"""
 	# Set defaults & check inputs
-	nx = np.shape(rc.datav)[0]
+	nx = len(rc.datav)
 
 	if not np.any(rc.xvals):
 		rc.xvals = np.arange(nx)
@@ -104,7 +104,7 @@ def procvect(rc):
 
 	# set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
 	# or the given percentage good of pixels passed in
-	rc.errorthresh = len(np.where(rc.xvals==1)) * (1 - rc.bpct) > len(rc.xvals) * 0.10 > 6
+	rc.errorthresh = max(len(np.where(rc.xvals==1)) * (1 - rc.bpct), len(rc.xvals) * 0.10, 6)
 
 	rc.errflag = 0
 	rc.coeffv = 0
@@ -125,7 +125,7 @@ def procvect(rc):
 
 	while rc.funcdone:
 		rc.funcdone = 0
-		rc.goodvals = np.where(rc.maskv[rc.xvals] == 1)
+		rc.goodvals = rc.maskv[rc.xvals] == 1
 		if len(rc.goodvals) < rc.errorthresh:
 			rc.deg = 1
 			rc.fiteval = polyfunc(rc)

@@ -48,20 +48,21 @@ def plot_fitbg(datav, maskv, varv, skyvarv, output_dir):
 
 	fig, ((datav_plot, maskv_plot),(varv_plot, skyvarv_plot)) = plt.subplots(2,2)
 	datav_plot.plot(datav)
-	datav_plot.ylabel = "Data Vector for BG Fitting"
+	datav_plot.set_title("Data Vector for BG Fitting")
 
 	maskv_plot.plot(maskv)
-	maskv_plot.ylabel = "Input Mask"
+	maskv_plot.set_title("Input Mask")
 
 	varv_plot.plot(varv)
-	varv_plot.ylabel = "Variance"
+	varv_plot.set_title("Variance")
 
 	skyvarv_plot.plot(skyvarv)
-	skyvarv_plot.ylabel = "Sky Variance"
+	skyvarv_plot.set_title("Sky Variance")
 
+	plt.tight_layout()
 	plt.show()
 	#TODO Save plot
-	#plt.imsave(fig, os.path.join(output_dir, "fitbg_plot.png"))
+	fig.savefig(os.path.join(output_dir, "fitbg_plot.png"))
 
 def plot_procvect(bgim, yvals, allx, sy1, sy2, i):
 
