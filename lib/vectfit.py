@@ -29,11 +29,11 @@ def newton_cotes(xvals, datav):
 
 	def booles_rule(y, h):
 
-		bl = (7*y[0]+
-		      32*y[1]+
-		      12*y[2]+
-		      32*y[3]+
-		      7*y[4])*(2*h)/45
+		bl = ( 7 * y[0] +
+		      32 * y[1] +
+		      12 * y[2] +
+		      32 * y[3] +
+		      7 * y[4]) * (2 * h) / 45
 
 		return bl
 
@@ -52,7 +52,7 @@ def newton_cotes(xvals, datav):
 	b = max(xvals)
 	h = (b - a) / 4
 
-	xvals_new = [a, a+h, a+2*h, a+3*h, b]
+	xvals_new = [a, a + h, a + 2 * h, a + 3 * h, b]
 	print(xvals_new)
 
 	# Use cubic spline interpolation to calculate datav points at those values
@@ -93,9 +93,8 @@ def gausseval(x, a, f=None, p=None):
 	if not p:
 		return f
 	else:
-
 		p = np.zeros((len(x), 3))
-
+		# 
 		p[:, 0] = f / a[0]
 		p[:, 1] = f * z / a[2]
 		p[:, 2] = p[:, 1] * z
@@ -152,14 +151,14 @@ def gaussfunc(rc):
 	# 	;                     measure_errors = sqrt(varv[nz]), nterms = 4, $
 	# 	;                     estimates = origcoeff, chisq = chisq)
 	#
-	# 	merrors = specv ^ 2 / varv > 1e-8
+	# 	merrors = specv ** 2 / varv > 1e-8
 	# 	estz = curvefit(xvals, datav / specv, merrors, $
 	# 	coeff, iter = fititer, function_name = 'gausseval', $
 	# 	tol = 1e-6, / double, status = status, $
 	# 	itmax = 10, chisq = chisq)
 	# 	est[nz] = estz[nz]
 	#
-	# 	if (status ne 0) then begin; estimation wrong so use median instead
+	# 	if (status != 0): then begin; estimation wrong so use median instead
 	# 	mdata = median(datav / specv, 2 * hbw + 1)
 	# 	estz = curvefit(xvals, mdata, merrors, $
 	# 	origcoeff, iter = fititer, function_name = 'gausseval', $
@@ -167,12 +166,8 @@ def gaussfunc(rc):
 	# 	est[nz] = estz[nz]
 	#
 	#
-	# endif
-	#
-	# return, est
-	# end
 
-	return
+	return # est
 
 def boxcarfunc(rc):
 	# TODO DOCS: boxcarfunc

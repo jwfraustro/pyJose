@@ -13,6 +13,7 @@ History:
 Created on 5/25/2021$
 """
 
+from lib.misc import rebin_nd
 from lib.excep import *
 import numpy as np
 
@@ -78,50 +79,43 @@ def sampleshift(rc):
 	
 	if not np.any(rc.degcontr):
 		rc.degcontr = 2
-
-	# if degcontr lt 0 then message, "Degree of fit must be ge 0"
 	if rc.degcontr < 0:
 		raise ParameterException("Degree of fit must be > 0.")
-	# if nx ne nxi or ny ne (size(inx))[2] then begin
-	#   message, "inx must be equal in size to data"
-	# endif 
 	if nx != nxi or ny != np.shape(rc.inx)[1]:
 		raise ParameterException("inx must be equal in size to data")
-
 	if ny != np.shape(rc.outx)[1]:
-		raise ParameterException("outx must have equal size y dimension to data")
-	#   message, "outx must have equal size y dimension to data"
-	# endif 
+		raise ParameterException("outx must have equal size y dimension to data") 
 
 	# TODO INITIALIZE
 	# make a large array of differences between the input coordinate and
 	# output coordinate for each row.
-	# if rc.fitsample or rc.fitinterp or rc.fitaverage:
-	#   inxa = rebin(inx, nxi, ny, nxo)
-	#   outxa = rebin(outx, nxo, ny, nxi)
-	#   inxa = transpose(inxa, [2, 1, 0])
-	#	dif = (outxa - inxa)
-	# endif
+	if rc.fitsample or rc.fitinterp or rc.fitaverage:
+		# TODO Fix orientation of array on transpose
+		inxa = rebin_nd(rc.inx, (nxi, ny, nxo))
+		outxa = rebin_nd(rc.outx, (nxo, ny, nxi))
+		inxa = np.transpose(inxa, (2, 1, 0))
+		dif = (outxa - inxa)
+
 
 	# SAMPLE
 	# Just return the pixel with the closest coordiante to whats needed
-	# if rc.fitsample:
-	#   foo = min(abs(dif), rmap, dimension=3)
-	#   rmap = rmap / nxo
-	#   mdata = data[rmap]
-	# endif
+	if rc.fitsample:
+		foo = np.amin(abs(dif), rc.rmap, axis=3)
+		rc.rmap /= nxo
+		mdata = rc.data[rc.rmap]
+
 
 	# ; INTERPOLATE
 	# ; Interpolate using the closest coordiantes above and below.  Find the
 	# ; pixels above and below, and add them together weighted by relative
 	# ; distance from the needed coordinate.
-	# if rc.fitinterp:
-	#   foo = min(1. / dif, lmap, dimension=3, subscript_max=hmap)
-	#   lweight = dif[hmap] / (dif[hmap] - dif[lmap]) ; the weight
-	#   lmap = lmap / nxo             ; the map of old pixels to new
-	#   hmap = hmap / nxo 
-	#   mdata = data[hmap] * (1 - lweight)
-	#   mdata += data[lmap] * lweight
+	if rc.fitinterp:
+	#   foo = np.amin(1. / dif, lmap, dimension=3, subscript_max=hmap)
+		lweight = dif[rc.hmap] / (dif[rc.hmap] - dif[rc.lmap]) # the weight
+		lmap = rc.lmap / nxo             # the map of old pixels to new
+		hmap = hmap / nxo 
+		mdata = rc.data[hmap] * (1 - lweight)
+		mdata += rc.data[lmap] * lweight
 	#   mdata[where(1 - lweight gt 1)] = data[hmap[where(1 - lweight gt 1)]]
 	#   mdata[where(    lweight gt 1)] = data[lmap[where(    lweight gt 1)]]
 	# endif
@@ -154,29 +148,29 @@ def sampleshift(rc):
 	#   endfor
 	# endif
 
-	# ; AVERAGE
+	# AVERAGE
 	# ; Average the closest pixels to the needed coordiante.  Add together
 	# ; those pixels with a difference less than range, and divide by the
 	# ; number of images
-	# if keyword_set(fitaverage) then begin
-	#   dataa = rebin(data, nxi, ny, nxo)
-	#   dataa = transpose(dataa, [2, 1, 0])
-	#   range = mean(outx[1:nxo-1, *] - outx[0:nxo-2, *]) / 2
+	if rc.fitaverage:
+	dataa = rebin_nd(data, (nxi, ny, nxo))
+	dataa = np.transpose(dataa, (2, 1, 0))
+	# range = mean(outx[:, 1:nxo - 1] - outx[:, 0:nxo - 2]) / 2
 	#   dmask = (dif ge -range) * (dif le range)
 	#   mdata = total(dataa*dmask, 3) / total(dmask, 3)
-	# endif
 
 	# ; POLYNOMIAL FITTING
 	# ; Loop through every pixel in the output array.  Grab the closest
 	# ; pixels and if there is enough around the needed coordinate fit a
 	# ; polynomial to them. Evaluate the polynomial and the output coordinate
-	# if keyword_set(fitpoly) then begin
-	#   mdata = outx - outx
-	#   for i = 0, ny-1 do begin
-	#     range = mean(outx[1:nxo-1, i] - outx[0:nxo-2, i]) / 2
+	if rc.fitpoly:
+		# TODO switch ny and nxo 
+		mdata = outx - outx
+	#	for i in range(ny - 1):
+	#	  range = mean(outx[1:nxo-1, i] - outx[0:nxo-2, i]) / 2
 	#     minx = min(inx[*, i])
 	#     maxx = max(inx[*, i])
-	#     for j = 0, nxo-1 do begin
+	#     for j in range(nxo - 1):
 	#       x1 = min(where(inx[*, i] ge outx[j, i]-range))
 	#       x2 = max(where(inx[*, i] le outx[j, i]+range))
 	#       if minx gt outx[j, i] then begin
@@ -198,11 +192,5 @@ def sampleshift(rc):
 	#                       /double, yfit = est, status = status)
 	#         mdata[j, i] = poly(outx[j, i], co)
 	#       endelse
-	#     endfor
-	#   endfor
-	# endif
 
-	# return, mdata
-	# end
-
-	return
+	return mdata

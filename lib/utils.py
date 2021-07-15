@@ -55,13 +55,13 @@ def load_config(config_file):
 	with open(config_file) as r:
 		config_map = yaml.safe_load(r)
 
-	RunConfig = Config(**config_map)
+	rc = Config(**config_map)
 
-	with fits.open(RunConfig.data_file) as r:
+	with fits.open(rc.data_file) as r:
 		fits_data = r[0].data
 
-	RunConfig.data = fits_data
+	rc.data = fits_data
 
-	check_defaults(RunConfig)
+	check_defaults(rc)
 
-	return RunConfig
+	return rc
