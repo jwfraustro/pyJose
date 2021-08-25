@@ -117,15 +117,15 @@ def fitprof(rc):
 	nx = dims[1]
 	ny = dims[0]
 
-	if not rc.varim:
+	if not np.any(rc.varim):
 		rc.varim = np.ones((ny, nx), np.double)
-	if not rc.inmask:
+	if not np.any(rc.inmask):
 		rc.inmask = np.ones((ny, nx), np.byte)
 	if not rc.pthresh:
 		rc.pthresh = 3
-	if not rc.bgim:
+	if not np.any(rc.bgim):
 		rc.bgim = np.ones((ny, nx), np.double)
-	if not rc.skyvar:
+	if not np.any(rc.skyvar):
 		rc.skyvar = np.ones((ny, nx), np.double)
 	if not rc.profdeg:
 		rc.profdeg = 3
@@ -135,8 +135,8 @@ def fitprof(rc):
 		rc.verbose = 0
 	if not rc.plottype:
 		rc.plottype = 0
-	if not rc.Pgotovect:
-		rc.Pgotovect = -1
+	if not rc.pgotovect:
+		rc.pgotovect = -1
 
 	# Check inputs
 	if len(rc.spec) != ny:
@@ -284,8 +284,8 @@ def fitbg(rc):
 		# wait, 0.001
 		# endif
 
-		rc.varim[rc.xvals, i] = rc.varv[rc.xvals]
-		rc.bgmask[:, i] = rc.maskv
-		rc.bgres[:, i] = rc.bcrv * rc.maskv
+		rc.varim[i, rc.xvals] = rc.varv[rc.xvals]
+		rc.bgmask[i, :] = rc.maskv
+		rc.bgres[i, :] = rc.bcrv * rc.maskv
 
 	return rc.bgim

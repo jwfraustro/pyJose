@@ -50,9 +50,6 @@ def optspecextr(config_file):
 		if cont == 'q' or "Q":
 			sys.exit(0)
 
-	#Setup variables for pass by ref
-	rc.Pgotovect = rc.gotovect
-	rc.Perrvect = rc.errvect
 	rc.profim = fitprof(rc)
 	#
 	# verbose = save_verbose

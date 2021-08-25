@@ -360,7 +360,7 @@ def polyeval(rc):
 	Created on 4/17/2021$
 	"""
 
-	return np.polyval(rc.coeffs, rc.xvals)
+	return np.polyval(rc.coeffs, rc.fitx)
 
 def polyfunc(rc):
 	# TODO DOCS: polyfunc
@@ -400,46 +400,49 @@ def polyfunc(rc):
 
 	Created on 4/17/2021$
 	"""
+	#TODO: See note at end of procvect. This needs to be rewritten as a generic module
+	# and return arbitrary values.
+
 	# Check Inputs
-	nx = len(rc.xvals)
+	nx = len(rc.fitx)
 
 	if not rc.deg:
 		rc.deg = 2
 
-	if nx != rc.datav.shape[0]:
-		raise VectorLengthException(nx, rc.datav.shape[0])
-	if nx != len(rc.varv):
-		raise VectorLengthException(nx, rc.varv)
-	if nx != len(rc.specv):
-		raise VectorLengthException(nx, rc.specv)
+	if nx != len(rc.fitdata):
+		raise VectorLengthException(nx, len(rc.fitdata))
+	if nx != len(rc.fitvar):
+		raise VectorLengthException(nx, len(rc.fitvar))
+	if nx != len(rc.fitmult):
+		raise VectorLengthException(nx, len(rc.fitmult))
 	if rc.deg < 0:
 		raise ParameterException("Degree cannot be < 0.")
 	if nx <= rc.deg:
 		raise ParameterException("Number of xvals must be greater than degree.")
 
 	# Evaluate Coefficients
-	if eval:  # evalate given coefficients
+	if rc.eval:  # evalate given coefficients
 		rc.fiteval = polyeval(rc)
-		zl = np.where(rc.varv == 0.)  # use actual data at varv 0 locations
+		zl = np.where(rc.fitvar == 0.)  # use actual data at varv 0 locations
 		if len(zl) > 0:
-			rc.fiteval[zl] = (rc.datav[zl] / rc.specv[zl])
+			rc.fiteval[zl] = (rc.fitdata[zl] / rc.fitmult[zl])
 
 		return rc.fiteval
 
 	# Fit Data
-	nz = np.where(rc.varv != 0.)  # locations where variance is zero
-	rc.estest = rc.datav / rc.specv  # initial estimate
-	if len(nz > 0):
+	nz = np.where(rc.fitvar != 0.)  # locations where variance is zero
+	rc.est = rc.fitdata / rc.fitmult  # initial estimate
+	if len(nz) > 0:
 		if rc.deg == 0:  # use an average over the column
-			mn = np.average(rc.datav / rc.specv)
-			rc.estest[nz] = mn
+			mn = np.average(rc.fitdata / rc.fitmult)
+			rc.est[nz] = mn
 			rc.coeffv = [mn, 0]  # correct for right length
 		else:
-			merrors = rc.varv / rc.specv ** 2 > 1E-8  # use all errors for estimation
+			rc.merrors = rc.fitvar / rc.fitmult ** 2 > 1E-8  # use all errors for estimation
 			if (rc.deg == 1):
-				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, 1)
+				rc.coeffv = np.polyfit(rc.fitx, rc.fitdata / rc.fitmult, 1)
 			else:
-				rc.coeffv = np.polyfit(rc.xvals, rc.datav / rc.specv, rc.deg)
+				rc.coeffv = np.polyfit(rc.fitx, rc.fitdata / rc.fitmult, rc.deg)
 
 	return rc.est
 

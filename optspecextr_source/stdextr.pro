@@ -34,7 +34,7 @@
 ;
 ;
 ; OUTPUT:
-;      returns stdspeec, an array of length n containing extracted spectra,
+;      returns stdspec, an array of length n containing extracted spectra,
 ;      where n is the number of wavelengths of the image (vertical
 ;      direction)
 ;

@@ -135,8 +135,8 @@ def procvect(rc):
 			return rc.fiteval
 		rc.fitx = rc.xvals[rc.goodvals]  # xvals for good pixels
 		rc.fitdata = rc.datav[rc.fitx]  # data for good pixels
-		rc.fitvar = rc.varv[rc.fitx]
-		rc.fitmult = rc.multv[rc.fitx]
+		rc.fitvar = rc.varv[rc.fitx] # variance of good pixels
+		rc.fitmult = rc.multv[rc.fitx] # multiplier for good pixels
 		rc.deg = 0
 		rc.est = polyfunc(rc)
 
@@ -176,9 +176,9 @@ def procvect(rc):
 
 		if rc.verbose == 5:
 			return
-		if not rc.noupdate:
+		if not rc.noupdate: # FIXME: when no update is False, returns 0-dimensional index error
 			rc.varv[rc.fitx] = (abs(rc.fitmult * rc.est + rc.bgv[rc.fitx])) / rc.q + rc.v0 + rc.skyvarv[rc.fitx]
-		if rc.badpix:
+		if np.any(rc.badpix):
 			rc.badx = rc.fitx[rc.badpix]
 			rc.maxpos = np.where(rc.bcrv[rc.badx] == max(rc.bcrv[rc.badx]))  # only eliminate max pixel
 			rc.maxx = rc.badx[rc.maxpos]
@@ -186,6 +186,11 @@ def procvect(rc):
 			rc.maskv[rc.maxx] = 0
 			rc.funcdone = 1
 
+	#TODO: There's a problem here. In the original procvect...
+	# Polyfunc is a standalone function that can take any arguments. In this version,
+	# i've got it setup for the fitx stuff from above. In the original at the end of procvect,
+	# it runs polyfunc again, but on the original data. Not sure how to fix this yet.
+	# For now, skip bg fitting.
 	rc.fiteval = polyfunc(rc)
 
 	if not rc.noupdate:

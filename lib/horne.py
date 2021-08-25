@@ -54,7 +54,7 @@ def stdextr(rc):
 	ny = np.shape(rc.dataim)[0]
 	nx = np.shape(rc.dataim)[1]
 
-	if not rc.inmask:
+	if not np.any(rc.inmask):
 		rc.inmask = np.ones((nx, ny))
 
 	if rc.x1 < 0 or rc.x1 > rc.x2:
@@ -78,7 +78,7 @@ def stdextr(rc):
 				datav[bv] = interpfunc(bv)
 			rc.adjspec[i] = np.sum(datav)
 
-	rc.stdspec = np.sum((rc.dataim * rc.inmask)[:, rc.x1:rc.x2], 0)
-	rc.stdvar = np.sum((rc.varim * rc.inmask)[:, rc.x1:rc.x2], 0)
+	rc.stdspec = np.sum((rc.dataim * rc.inmask)[:, rc.x1:rc.x2], 1)
+	rc.stdvar = np.sum((rc.varim * rc.inmask)[:, rc.x1:rc.x2], 1)
 
 	return rc.stdspec

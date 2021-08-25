@@ -2,8 +2,8 @@ data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for 
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
 rn: 0.0      # Read noise of data frame in DN
 q: 10.0       # Effective number of photos per DN for data frame
-x1: 256      # Start boundary in x of spectrum (inclusive)
-x2: 315      # End Boundary in x of spectrum (inclusive)
+x1: 255      # Start boundary in x of spectrum (inclusive)
+x2: 285      # End Boundary in x of spectrum (inclusive)
 output_dir: 'output'
 
 # GENERAL
@@ -14,10 +14,12 @@ integrate: null   # Set to integrate over bad pixels when calculating spec for u
 varim: null
 
 # BACKGROUND FITTING
-nobgfit: null     # Set to not fit the background
+nobgfit: True     # Set to not fit the background
 bthresh: null     # sigma threshold for cosmic ray rejection for bg, (3)
 bgdeg: null       # degree of polynomial fit for interpolation in fitbg (1)
 absthresh: False
+eval: False
+noupdate: True
 
 # PROFILE FITTING - GEOMETRY ADJUSTMENT
 adjfunc: null     # The name of the function to call with images to modify
@@ -89,6 +91,8 @@ berrvect: null  # Mask of rows where iteration stopped during fitbg
 # Standard Extraction
 stdspec: null   # Standard spectrum
 stdvar: null    # Returns variance of standard spectrum
+adjspec: False  # Set to linearly interpolate the data, then extract the standard spectrum.
+                # Only useful if input mask has bad pixels
 
 # Profile Fitting:
 profim: null    # Calculated profile image
