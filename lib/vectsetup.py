@@ -23,7 +23,7 @@ from lib.procvect import procvect
 from lib.misc import plot_procvect
 from lib.misc import plot_fitbg
 
-def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
+def extrspec(rc):
 	# TODO DOCS: extrspec
 	"""
 
@@ -48,6 +48,79 @@ def extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs):
 	Created on 4/17/2021$
 	"""
 	# TODO FUNC: extrspec
+
+	ny = np.shape(rc.dataim)[0]
+	nx = np.shape(rc.dataim)[1]
+
+	if rc.verbose > 1:
+		print("Starting Optimal Extraction")
+
+	#TODO fix exceptions here
+	if rc.x1 < 0 or rc.x1 > rc.x2:
+		raise ParameterException("Exception here.")
+	if rc.x2 > nx -1 or rc.x2 < rc.x2:
+		raise ParameterException("Exception here.")
+	#str += (size(varim ))[1] ne nx || (size(varim ))[2] ne ny ? "varim "  : ""
+	#str += (size(profim))[1] ne nx || (size(profim))[2] ne ny ? "profim " : ""
+	#str += (size(inmask))[1] ne nx || (size(inmask))[2] ne ny ? "inmask " : ""
+	#str += (size(bgim  ))[1] ne nx || (size(bgim  ))[2] ne ny ? "bgim "   : ""
+	#str += (size(skyvar))[1] ne nx || (size(skyvar))[2] ne ny ? "skyvar " : ""
+	#str += 4 ne n_elements(plottype)                          ? "plottype" : ""
+
+	exres = np.zeros((nx, ny))
+	exmask = np.ones((nx, ny))
+	crv = np.zeros((rc.x2-rc.x1+1))
+	optspec = np.zeros((ny))
+	opvar = np.zeros((ny))
+	errvect = np.ones((ny))
+	func = "extractfunc"
+
+	#LOOP THRROUGH ROWS
+	#Cut up the images into rows and pass each to procvect.  Tells
+	#procvect to use extractfunc.pro which returns the optimal
+	#extraction.  It also return in parm the variance of the extraction.
+	#Procvect will handle the sigma rejection.
+
+	for i in range(ny):
+		varv = rc.varim[i, rc.x1:rc.x2]
+		maskv = rc.inmask[i, rc.x1:rc.x2]
+		datav = rc.dataim[i, rc.x1:rc.x2]
+		multv = rc.profim[i, rc.x1:rc.x2]
+		bgv = rc.bgim[i, rc.x1:rc.x2]
+		skyvarv = rc.skyvar[i, rc.x1:rc.x2]
+
+	#TODO Plotting
+	#if (i eq gotovect) then verbose = 5
+    #if plottype[1] or verbose eq 5 then begin
+    #device, window_state = ws   ; get the present window state
+    #if not ws[12] then window, 12 else wset, 12 ; open window 12
+    #!p.multi = [0, 2, 3, 1, 1]  ; fit all six inside
+    #!p.charsize = 2.0
+    #!x.margin = [8, 2]
+    #!y.margin = [2, 2]
+    #plot, datav,   title = 'Data Vector for Extraction', /ystyle
+    #plot, multv,   title = 'Profile', /ystyle
+    #plot, maskv,   title = 'Input Mask', yrange = [-0.1, 1.1]
+    #plot, varv,    title = 'Variance', /ystyle
+    #plot, skyvarv, title = 'Sky variance', /ystyle
+    #plot, bgv,     title = 'Background', /ystyle
+    #!p.multi = 0
+    #!p.charsize = 1.0
+    #!x.margin = [10, 3]
+    #!y.margin = [4, 2]
+    #wait, 0.01                  ; pause to allow user to view
+    #endif
+
+		rc.optspec[i] = procvect(rc)
+
+		if (rc.errflag):
+			errvect[i] = 0
+		opvar[i] = parm
+		exmask[i, rc.x1:rc.x2] = maskv
+		varim[i, rc.x1:rc.x2] = varv
+		exres[i, rc.x1:rc.x2] = crv*maskv
+
+
 	return
 
 

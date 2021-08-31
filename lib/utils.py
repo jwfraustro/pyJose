@@ -41,7 +41,7 @@ def check_defaults(rc):
 	if (rc.x1 < 0) or (rc.x1 > rc.x2):
 		raise ParameterException("x1 must be between 0 and x2.")
 
-	if rc.plottype not in range(0, 5):
+	if rc.plottype not in range(0, 6):
 		raise ParameterException("Plot type must be a value of 0-4")
 
 	if not os.path.exists(rc.output_dir):

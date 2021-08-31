@@ -67,7 +67,7 @@ verbose: 2
   #   3 - output every warning
   #   4 - plot how the data are being used
   #   5 - stop after each iteration
-plottype: null
+plottype: 5
   # Set to the type of plot output to the screen
   #   0 - No Plots
   #   1 - Show a summary of all processed frames

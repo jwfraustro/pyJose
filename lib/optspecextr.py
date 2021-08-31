@@ -19,6 +19,7 @@ Created on 4/17/2021$
 from lib.vectsetup import fitbg, fitprof
 from lib.utils import load_config
 from lib.horne import stdextr
+from lib.display import interactive_jose
 import numpy as np
 import os, sys
 
@@ -34,6 +35,9 @@ def optspecextr(config_file):
 
 	if rc.verbose == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
+
+	if rc.plottype == 5:
+		interactive_jose(rc)
 
 	rc.bgim = fitbg(rc)
 
