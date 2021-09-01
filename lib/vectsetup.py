@@ -247,6 +247,81 @@ def fitprof(rc):
 		rc.Perrvect = np.ones(ny, np.byte)
 		return rc.profim
 
+	if rc.adjfunc:
+		inarray = np.zeros((ny, rc.x2-rc.x2+1, 5))
+		inarray[:,:,0] = rc.dataim[:, rc.x1:rc.x2]
+		inarray[:, :, 1] = rc.varim[:, rc.x1:rc.x2]
+		inarray[:, :, 2] = rc.inmask[:, rc.x1:rc.x2]
+		inarray[:, :, 3] = rc.skyvar[:, rc.x1:rc.x2]
+		inarray[:, :, 4] = rc.bgim[:, rc.x1:rc.x2]
+
+		# TODO setup adjust function calling
+		# outarray = call_function(AdjFunc, InArray, OptInfo, AdjParms = AdjParms, $
+		#                            AdjOptions = AdjOptions)
+		outarray = None
+
+		rc.pdataim = outarray[:,:,0]
+		rc.pvarim = outarray[:, :, 1]
+		rc.pmask = outarray[:, :, 2]
+		rc.pskyvar = outarray[:, :, 3]
+		rc.pbgim = outarray[:, :, 4]
+
+		# Estimate the influence of a bad pixel on its neighbors
+		# TODO check this
+		rc.pmask = rc.pmask > 0.99 and rc.pmask < 1.01
+
+	#INITIALIZE
+	#Because the images may be a different size now, new initilization is
+	#needed.  If a Gaussian profile is assumed, transverse by rows.  If
+	#polynomial fitting or running average fitting is used loop by columns.
+
+	pnx = np.shape(rc.pdataim)[1]
+	pny = np.shape(rc.pdataim)[0]
+
+	if rc.fitgauss == True:
+		f1 = 0
+		f2 = pny-1
+		nvect = pnx
+		ndata = pny
+		func = "gaussfunc"
+		parm = 1
+		# TODO
+		# this is where the fitting function will need to be moved for the main loop
+	else:
+		f1 = 0
+		f2 = pnx - 1
+		nvect = pny
+		ndata = pnx
+		if rc.fitboxcar == True:
+			func = "boxcarfunc"
+			parm = rc.boxcarhw
+		else:
+			func = "polyfunc"
+			parm = rc.profdeg
+
+	rc.profmask = rc.pmask
+	rc.profres = np.zeros((pnx, pny))
+	rc.pprofim = np.zeros((pnx, pny))
+	rc.pspecim = np.matmul(np.ones((pnx)), rc.spec)
+	rc.datav = np.zeros(nvect)
+	rc.maskv = np.zeros(nvect)
+	rc.varv = np.zeros(nvect)
+	rc.multv = np.zeros(nvect)
+	rc.skyvarv = np.zeros(nvect)
+	rc.bgv = np.zeros(nvect)
+	rc.errvect = np.ones(ndata)
+	index = np.arange(ndata+1)
+	rc.pprofim = rc.pdataim / rc.pspecim
+	yvals = np.arange(pny+1)
+	xvals = np.arange(pnx+1)
+
+
+
+
+
+
+
+
 	#TODO FUNC: rest of fitprof
 
 	return
