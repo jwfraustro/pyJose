@@ -258,6 +258,7 @@ def fitprof(rc):
 		# TODO setup adjust function calling
 		# outarray = call_function(AdjFunc, InArray, OptInfo, AdjParms = AdjParms, $
 		#                            AdjOptions = AdjOptions)
+		# TODO Remove this line later
 		outarray = None
 
 		rc.pdataim = outarray[:,:,0]
@@ -269,6 +270,12 @@ def fitprof(rc):
 		# Estimate the influence of a bad pixel on its neighbors
 		# TODO check this
 		rc.pmask = rc.pmask > 0.99 and rc.pmask < 1.01
+	else:
+		rc.pdataim = rc.dataim[:, rc.x1:rc.x2]
+		rc.pvarim = rc.varim[:, rc.x1:rc.x2]
+		rc.pmask = rc.inmask[:, rc.x1:rc.x2]
+		rc.pskyvar = rc.skyvar[:, rc.x1:rc.x2]
+		rc.pbgim = rc.bgim[:, rc.x1:rc.x2]
 
 	#INITIALIZE
 	#Because the images may be a different size now, new initilization is
@@ -315,14 +322,19 @@ def fitprof(rc):
 	yvals = np.arange(pny+1)
 	xvals = np.arange(pnx+1)
 
+	# Loop through Rows or Columns
+	# Cut up the data according to the type of fitting and pass the info into procvect.
+	# Procvect will take care of bad pixel rejection and pass the smoothed porfile back
 
+	for i in range(f1, f2):
+		if rc.fitgauss:
+			i_s = index[i, :]
+		else:
+			i_s = index[:, i]
 
+		rc.datav[:] = rc.pdataim[i_s]
+		rc.maskv[:]
 
-
-
-
-
-	#TODO FUNC: rest of fitprof
 
 	return
 
