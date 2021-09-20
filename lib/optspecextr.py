@@ -16,33 +16,51 @@ History:
 
 Created on 4/17/2021$
 """
-from lib.vectsetup import fitbg, fitprof
-from lib.utils import load_config
-from lib.horne import stdextr
+from lib.vectsetup import fitprof
+from lib.fitbg import fitbg
+from lib.utils import load_config, save_fits
+from lib.stdextr import stdextr
 from lib.display import interactive_jose
 import numpy as np
 import os, sys
+from matplotlib import pyplot as plt
 
 
 def optspecextr(config_file):
 	# Set up run configuration for variables
-	rc = load_config(config_file)
+	data, opts = load_config(config_file)
 
-	rc.v0 = rc.rn ** 2
-	rc.x1 = np.round(rc.x1)
-	rc.x2 = np.round(rc.x2)
-	rc.varim = rc.var
+	opts['v0'] = opts['rn'] ** 2
+	opts['x1'] = np.round(opts['x1'])
+	opts['x2'] = np.round(opts['x2'])
 
-	if rc.verbose == 5:
+	if "var" in opts:
+		varim = opts['var']
+	else:
+		varim = np.copy(data)
+		varim = abs(varim) / opts['q'] + opts['rn']**2
+	if opts['verbose'] == 5:
 		input("Stopping at fitting sky background, press enter to continue.")
 
-	if rc.plottype == 5:
-		interactive_jose(rc)
 
-	rc.bgim = fitbg(rc)
+	#if rc.plottype == 5:
+	#	interactive_jose(rc)
 
-	rc.dataim = rc.data - rc.bgim
-	rc.stdspec = stdextr(rc)
+	verbose = opts['verbose']
+	plottype = opts['plottype']
+	#Fit Background
+	bgim, varim = fitbg(data, varim=varim, **opts)
+
+	opts['verbose'] = verbose
+	opts['plottype'] = plottype
+
+	dataim = data - bgim
+
+	save_fits(dataim, 'bg_subtracted')
+	save_fits(data, 'original_data')
+	save_fits(bgim, 'bg_img')
+
+	stdspec, stdvar = stdextr(dataim, varim, **opts)
 
 	if rc.integrate:
 		rc.spec = rc.adjspec
@@ -59,7 +77,7 @@ def optspecextr(config_file):
 	# verbose = save_verbose
 	# plot_type = save_plottype
 	#
-	rc.optspec = extrspec(dataim, profim, varim, v0, q, x1, x2, **kwargs)
+	rc.optspec = extrspec(rc)
 	#
 	# varout = varim
 	#

@@ -14,6 +14,8 @@ Created on 5/25/2021$
 """
 
 from lib.misc import rebin_nd
+from lib.vectfit import centermass, gaussfunc
+from lib import procvect
 from lib.excep import *
 import numpy as np
 
@@ -114,6 +116,8 @@ def findshift(rc):
 	parm = rc.tracedeg
 
 	#TODO finish findshift
+	if rc.centroid:
+		brows = np.where(sum(rc.inmask[:, xrange], 1) < len(xrange), rcount)
 
 	return
 
@@ -194,7 +198,7 @@ def sampleshift(rc):
 	#   foo = np.amin(1. / dif, lmap, dimension=3, subscript_max=hmap)
 		lweight = dif[rc.hmap] / (dif[rc.hmap] - dif[rc.lmap]) # the weight
 		lmap = rc.lmap / nxo             # the map of old pixels to new
-		hmap = hmap / nxo 
+		hmap = hmap / nxo
 		mdata = rc.data[hmap] * (1 - lweight)
 		mdata += rc.data[lmap] * lweight
 	#   mdata[where(1 - lweight gt 1)] = data[hmap[where(1 - lweight gt 1)]]

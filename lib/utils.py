@@ -55,13 +55,21 @@ def load_config(config_file):
 	with open(config_file) as r:
 		config_map = yaml.safe_load(r)
 
-	rc = Config(**config_map)
+	#rc = Config(**config_map)
 
-	with fits.open(rc.data_file) as r:
+	with fits.open(config_map['data_file']) as r:
 		fits_data = r[0].data
 
-	rc.data = fits_data
+	data = fits_data
 
-	check_defaults(rc)
+	empty_keys = [k for k, v in config_map.items() if v==None]
+	for k in empty_keys:
+		config_map.pop(k)
 
-	return rc
+	return data, config_map
+
+def save_fits(arr, fname):
+
+	hdu = fits.PrimaryHDU(arr)
+	hdu.writeto("./output/"+fname+".fits", overwrite=True)
+	return
