@@ -60,14 +60,14 @@ def optspecextr(config_file):
 	save_fits(data, 'original_data')
 	save_fits(bgim, 'bg_img')
 
-	stdspec, stdvar = stdextr(dataim, varim, **opts)
+	stdspec, stdvar, adjspec = stdextr(dataim, varim, **opts)
 
-	if rc.integrate:
-		rc.spec = rc.adjspec
+	if opts['integrate'] == True:
+		spec = adjspec
 	else:
-		rc.spec = rc.stdspec
+		spec = stdspec
 
-	if rc.verbose == 5:
+	if opts['verbose'] == 5:
 		cont = input("Stopping at profile fitting. Press any key to continue or (q) to quit.")
 		if cont == 'q' or "Q":
 			sys.exit(0)

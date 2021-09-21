@@ -76,4 +76,4 @@ def stdextr(dataim, varim, x1, x2, **kwargs):
 	stdspec = np.sum((dataim * inmask)[:, x1:x2], 1)
 	stdvar = np.sum((varim * inmask)[:, x1:x2], 1)
 
-	return stdspec, stdvar
+	return stdspec, stdvar, adjspec
