@@ -43,24 +43,30 @@ def optspecextr(config_file):
 		input("Stopping at fitting sky background, press enter to continue.")
 
 
-	#if rc.plottype == 5:
-	#	interactive_jose(rc)
+	if opts['plottype'] == 5:
+		interactive_jose(data)
 
 	verbose = opts['verbose']
 	plottype = opts['plottype']
 	#Fit Background
-	bgim, varim = fitbg(data, varim=varim, **opts)
+	bgim, varim, opts['inmask'] = fitbg(data, varim=varim, **opts)
 
 	opts['verbose'] = verbose
 	opts['plottype'] = plottype
 
 	dataim = data - bgim
 
+	if opts['plottype'] == 5:
+		interactive_jose(dataim)
+
 	save_fits(dataim, 'bg_subtracted')
 	save_fits(data, 'original_data')
 	save_fits(bgim, 'bg_img')
 
-	stdspec, stdvar, adjspec = stdextr(dataim, varim, **opts)
+	stdspec, stdvar, adjspec, dataim = stdextr(dataim, varim, **opts)
+
+	if opts['plottype'] == 5:
+		interactive_jose()
 
 	if opts['integrate'] == True:
 		spec = adjspec
@@ -72,12 +78,12 @@ def optspecextr(config_file):
 		if cont == 'q' or "Q":
 			sys.exit(0)
 
-	rc.profim = fitprof(rc)
+	profim = fitprof(rc)
 	#
 	# verbose = save_verbose
 	# plot_type = save_plottype
 	#
-	rc.optspec = extrspec(rc)
+	optspec = extrspec(rc)
 	#
 	# varout = varim
 	#

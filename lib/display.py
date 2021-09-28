@@ -15,49 +15,20 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph.metaarray as marray
 
-def interactive_jose(rc):
+def interactive_jose(data):
 
-	app = pg.mkQApp("Interactive JOSE")
+	app = pg.mkQApp("pyJOSE")
 
-	# Create window with grid
-	win = QtGui.QMainWindow()
-	win.setWindowTitle('JOSE: '+rc.data_file)
-	cw = QtGui.QWidget()
-	win.setCentralWidget(cw)
-	layout = QtGui.QGridLayout()
-	cw.setLayout(layout)
-
-	# Create flowchart
-	fc = Flowchart(
-			terminals={
-				'data_file':{'io':'in'},
-				'result_img':{'io':'out'}
-			}
-	)
-	w = fc.widget()
-
-	# Add flowchart controls
-	layout.addWidget(fc.widget(), 0,0,2,1)
-	pw1 = pg.PlotWidget()
-	pw2 = pg.PlotWidget()
-	layout.addWidget(pw1, 0, 1)
-	layout.addWidget(pw2, 1, 1)
-
+	win=QtGui.QMainWindow()
+	pg.setConfigOptions(imageAxisOrder='row-major')
+	win.resize(800,800)
+	imv = pg.ImageView()
+	win.setCentralWidget(imv)
 	win.show()
-
-	fc.setInput(data_file=rc.data)
-	## populate the flowchart with a basic set of processing nodes.
-	## (usually we let the user do this)
-	plotList = {'Top Plot': pw1, 'Bottom Plot': pw2}
-
-	pw1Node = fc.createNode('PlotWidget', pos=(0, -150))
-	pw1Node.setPlotList(plotList)
-	pw1Node.setPlot(pw1)
-
-	pw2Node = fc.createNode('PlotWidget', pos=(150, -150))
-	pw2Node.setPlot(pw2)
-	pw2Node.setPlotList(plotList)
-
+	win.setWindowTitle('pyJOSE: example.fits')
+	imv.setImage(data)
+	imv.ui.roiBtn.setChecked(True)
+	imv.roiClicked()
 	pg.exec()
 
 	return

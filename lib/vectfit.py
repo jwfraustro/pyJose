@@ -272,10 +272,6 @@ def centermass(rc):
 	Restrictions:
 		All vectors must be the same length.
 
-	Modification History:
-		TODO
-
-
 	"""
 	nx = len(rc.xvals)
 

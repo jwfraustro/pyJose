@@ -163,4 +163,4 @@ def procvect(datav, **kwargs):
 	if not noupdate:
 		varv = (abs(multv * fiteval + bgv)) / q + v0 + skyvarv # get var for all pixels
 
-	return fiteval, errflag
+	return fiteval, maskv, errflag, coeffv

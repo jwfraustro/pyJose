@@ -1,4 +1,4 @@
-data_file: 'ex1.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
+data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
 rn: 10.0      # Read noise of data frame in DN
 q: 10.0       # Effective number of photos per DN for data frame
@@ -90,7 +90,7 @@ berrvect: null  # Mask of rows where iteration stopped during fitbg
 # Standard Extraction
 stdspec: null   # Standard spectrum
 stdvar: null    # Returns variance of standard spectrum
-adjspec: False  # Set to linearly interpolate the data, then extract the standard spectrum.
+adjspec: True  # Set to linearly interpolate the data, then extract the standard spectrum.
                 # Only useful if input mask has bad pixels
 
 # Profile Fitting:

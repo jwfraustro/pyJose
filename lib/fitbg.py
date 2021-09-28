@@ -125,10 +125,11 @@ def fitbg(dataim, x1, x2, **kwargs):
 
 		# plot_fitbg(datav, maskv, varv, skyvarv, kwargs['output_dir'])
 
-		bgim[i, :], errflag = procvect(datav, varv=varv, maskv=maskv, crv=bcrv, thresh=bthresh, xvals=xvals,
-		                               skyvarv=skyvarv, vectnum=i, parm=parm, **kwargs)
+		bgim[i, :], inmask[i, :], errflag, coeffv = procvect(datav, varv=varv, maskv=maskv, crv=bcrv, thresh=bthresh,
+		                                                     xvals=xvals,
+		                                                     skyvarv=skyvarv, vectnum=i, parm=parm, **kwargs)
 
 		if errflag:
 			errvect[i] = 0  # There was a problem fitting this row
 
-	return bgim, varim
+	return bgim, varim, inmask

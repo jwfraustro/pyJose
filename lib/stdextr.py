@@ -48,7 +48,6 @@ def stdextr(dataim, varim, x1, x2, **kwargs):
 	nx = np.shape(dataim)[1]
 
 	inmask = kwargs.get("inmask", np.ones((nx, ny)))
-	varim = kwargs.get("varim", np.ones((nx, ny)))
 
 
 	if x1 < 0 or x1 > x2:
@@ -63,10 +62,10 @@ def stdextr(dataim, varim, x1, x2, **kwargs):
 	# Interpolate over bad pixels
 	adjspec = kwargs.get("adjspec", False)
 	if adjspec:
-		adjspec = np.array(ny, np.double)
+		adjspec = np.zeros(ny)
 		for i in range(ny):
-			bv = np.where(inmask[i, x1:x2] == 0)
-			gv = np.where(inmask[i, x1:x2] == 1)
+			bv = np.where(inmask[i, x1:x2] == 0)[0]
+			gv = np.where(inmask[i, x1:x2] == 1)[0]
 			datav = dataim[i, x1:x2]
 			if len(bv) > 0:
 				interpfunc = interpolate.interp1d(gv, datav[gv],  kind='linear')
@@ -76,4 +75,4 @@ def stdextr(dataim, varim, x1, x2, **kwargs):
 	stdspec = np.sum((dataim * inmask)[:, x1:x2], 1)
 	stdvar = np.sum((varim * inmask)[:, x1:x2], 1)
 
-	return stdspec, stdvar, adjspec
+	return stdspec, stdvar, adjspec, dataim
