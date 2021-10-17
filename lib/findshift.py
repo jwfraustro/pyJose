@@ -33,7 +33,8 @@ Created on 9/22/2021$
 """
 
 from lib.misc import rebin_nd
-from lib.vectfit import centermass, gaussfunc
+from lib.fitting.centermass import centermass
+from lib.fitting.gaussfunc import gaussfunc
 from lib.procvect import procvect
 from lib.excep import *
 import numpy as np
@@ -87,8 +88,7 @@ def findshift(dataim, **kwargs):
 		if i == gotovect:
 			verbose = 5
 		if centroid:
-			func = 'centermass'
-			shiftv[i] = centermass(rc)
+ 			shiftv[i] = centermass(datav, datav, varv, specv)
 			widthv[i] = 1
 			if verbose == 5:
 				input("Stopping at center mass. Press enter to continue.")
@@ -111,8 +111,8 @@ def findshift(dataim, **kwargs):
 			               func = func, parm=parm, verbose=verbose, plottype=plottype,
 			               multv=specv, vectnum=i, absthresh=True)
 			tracemask[i, x1:x2] = mainmv
-			foo = gaussfunc(rc)
-			if rc.coeff[0] == 0:
+			foo = gaussfunc()
+			if coeff[0] == 0:
 				shmask[i] = 0
 			else:
 				shmask[i] = 1
@@ -122,7 +122,7 @@ def findshift(dataim, **kwargs):
 
 	varv = np.zeros(ny) + (1.0/10)**2
 	func = 'polyfunc'
-	parm = rc.tracedeg
+	parm = tracedeg
 
 	#TODO finish findshift
 	if rc.centroid:

@@ -65,8 +65,8 @@ def optspecextr(config_file):
 
 	stdspec, stdvar, adjspec, dataim = stdextr(dataim, varim, **opts)
 
-	if opts['plottype'] == 5:
-		interactive_jose()
+	plt.plot(stdspec)
+	plt.savefig("./output/stdspec.png")
 
 	if opts['integrate'] == True:
 		spec = adjspec

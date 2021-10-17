@@ -2,8 +2,8 @@ data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for 
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
 rn: 10.0      # Read noise of data frame in DN
 q: 10.0       # Effective number of photos per DN for data frame
-x1: 240      # Start boundary in x of spectrum (inclusive)
-x2: 270      # End Boundary in x of spectrum (inclusive)
+x1: 263      # Start boundary in x of spectrum (inclusive)
+x2: 280      # End Boundary in x of spectrum (inclusive)
 output_dir: 'output'
 
 # GENERAL
@@ -68,7 +68,7 @@ verbose: 2
   #   3 - output every warning
   #   4 - plot how the data are being used
   #   5 - stop after each iteration
-plottype: 5
+plottype: 4
   # Set to the type of plot output to the screen
   #   0 - No Plots
   #   1 - Show a summary of all processed frames
