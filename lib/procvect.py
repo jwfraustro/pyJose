@@ -1,198 +1,166 @@
+"""
+Name:
+
+Purpose:
+
+Category:
+
+Calling Example:
+
+Inputs:
+
+Outputs:
+
+History:
+
+Created on 9/19/2021$
+"""
+
 import numpy as np
-from lib.vectfit import polyfunc
 from lib.excep import *
+from importlib import import_module
+from lib.fitting import *
 
-def procvect(rc):
-	# TODO DOCS: procvect
-	"""
-	Name:
-		procvect
-	Purpose:
-		Fit using a user defined function to the input vector,
-		integrating until no more cosmic rays are found using either sigma
-		or absolute comparison of the residuals rejection.
-	Category:
-		Optimal Spectrum Extraction Package
-			- Vector Fitting driver routine
-	Calling Example:
 
-	Inputs:
+def procvect(datav, **kwargs):
+	# Set Defaults and Check Inputs
 
-	Outputs:
+	nx = len(datav)
 
-	History:
+	# Check if kwarg inputs exist, if not, set their defaults
+	xvals = kwargs.get("xvals", np.arange(nx))
+	varv = kwargs.get("varv", np.ones(nx))
+	multv = kwargs.get("multv", np.ones(nx))
+	maskv = kwargs.get("maskv", np.ones(nx, np.byte))
+	bgv = kwargs.get("bgv", np.zeros(nx))
+	skyvarv = kwargs.get('skyvarv', np.zeros(nx))
+	crv = kwargs.get("crv", np.zeros(nx))
+	thresh = kwargs.get("thresh", 3)
+	q = kwargs.get("q", 1)
+	v0 = kwargs.get("v0", 0)
+	bpct = kwargs.get("bpct", 0.5)
+	func = kwargs.get('func', "polyfunc")
+	verbose = kwargs.get("verbose", 0)
+	plottype = kwargs.get("plottype", 0)
+	parm = kwargs.get("parm", {})
 
-	Created on 4/17/2021$
-	"""
-	# Set defaults & check inputs
-	nx = len(rc.datav)
-
-	if not np.any(rc.xvals):
-		rc.xvals = np.arange(nx)
-	if not np.any(rc.varv):
-		rc.varv = np.ones(nx)
-	try:
-		if not np.any(rc.multv):
-			rc.multv = np.ones(nx)
-	except AttributeError:
-		rc.multv = np.ones(nx)
-	try:
-		if not np.any(rc.maskv):
-			rc.maskv = np.ones(nx, np.byte)
-	except AttributeError:
-		rc.maskv = np.ones(nx, np.byte)
-	try:
-		if not np.any(rc.bgv):
-			rc.bgv = np.array(nx)
-	except AttributeError:
-		rc.bgv = np.array(nx)
-	if not np.any(rc.skyvarv):
-		rc.skyvarv = np.array(nx)
-	if rc.bcrv.shape == 0:
-		rc.bcrv = np.array(nx)
-	if not rc.bthresh:
-		rc.bthresh = 5
-	if not rc.q:
-		rc.q = 1
-	if not rc.v0:
-		rc.v0 = 0
-	if not rc.bpct:
-		rc.bpct = 0.5
-	if not rc.func:
-		rc.func = 'polyfunc'
-	if not rc.verbose:
-		rc.verbose = 0
-	if not rc.plottype:
-		rc.plottype = 0
-
-	# TODO FUNC: procvect error checking
-
-	# str = ""
-	if nx != len(rc.varv):
-		raise VectorLengthException("nx", "varv")
-	if nx != len(rc.varv):
-		raise VectorLengthException("nx", "varv")
-	if nx != len(rc.multv) and len(rc.multv) != 1:
+	# Error checking
+	if nx != len(varv): raise VectorLengthException("nx", "varv")
+	if nx != len(maskv): raise VectorLengthException("nx", "maskv")
+	if nx != len(multv) and len(multv) != 1:
 		raise VectorLengthException("nx", "multv")
-	#if nx != len(rc.bgv):
-	#	raise VectorLengthException("nx", "bgv")
-	#if nx != len(rc.skyvarv):
-	#	raise VectorLengthException("nx", "skyvarv")
-	if nx != len(rc.bcrv):
-		raise VectorLengthException("nx", "bcrv")
-	if rc.bthresh < 0:
-		raise ParameterException("Threshold cannot be less than 0.")
-	if rc.q < 0:
-		raise ParameterException("Q cannot be less than 0.")
-	if rc.v0 < 0:
-		raise ParameterException("v0 cannot be less than 0.")
-	if rc.bpct > 1 or rc.bpct < 0:
-		raise ParameterException("bpct must be between 0 and 1.")
+	if nx != bgv.size: raise VectorLengthException("nx", "bgv")
+	if nx != len(skyvarv): raise VectorLengthException("nx", "skyvarv")
+	if nx != len(crv): raise VectorLengthException("nx", "crv")
+	if thresh < 0: raise ParameterException("Threshold cannot be less than 0.")
+	if q < 0: raise ParameterException("Q cannot be less than 0.")
+	if v0 < 0: raise ParameterException("v0 cannot be less than 0.")
+	if bpct > 1 or bpct < 0: raise ParameterException(
+			"bpct must be between 0 and 1.")
 
-	# if a row or column number is given, use that for the debug plot title
-	if rc.vectnum:
-		rc.vectnum_s = " at Vector # " + str(rc.vectnum)
+	if "vectnum" in kwargs:
+		vectnum_s = " at Vector # " + str(kwargs.get("vectnum"))
 	else:
-		rc.vectnum_s = ""
+		vectnum_s = ""
 
-	# if an absolute threshold is used, use that threshold. Else, square
+	# If an absolute threshold is used, use that threshold.  Else, square
 	# the sigma threshold so it can be used with variance calculations
-	if rc.absthresh:
-		rc.vthresh = rc.bthresh
+
+	absthresh = kwargs.get("absthresh", False)
+	if absthresh:
+		vthresh = thresh
 	else:
-		rc.vthresh = rc.bthresh ** 2
+		vthresh = thresh * thresh
 
-	# set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
-	# or the given percentage good of pixels passed in
-	rc.errorthresh = max(len(np.where(rc.xvals==1)) * (1 - rc.bpct), len(rc.xvals) * 0.10, 6)
+	# Set the error threshold to be the greatest of 6 pixels, 10% of the total pixels,
+	# or the given percentage of good pixels passed in.
+	errorthresh = max(len(maskv[xvals] == 1.) * (1 - bpct), len(xvals) * 0.10, 6)
 
-	rc.errflag = 0
-	rc.coeffv = 0
-	rc.funcdone = 1
-	rc.funccount = 0
+	errflag = 0
+	coeffv = 0
+	funcdone = 1
+	funccount = 0
+
+	noupdate = kwargs.get("noupdate", False)
 
 	# MAIN LOOP
-	# on each iteration first check to make sure there is enough good
-	# pixels left to fit the data.  Next pull out the good pixels and pass
-	# them to the function. Calculate the residuals of each pixel, using
-	# either the difference between actual and estimated, or if sigma
-	# rejection is used square the difference and divide by the variance
-	# of the pixel. If the user requests a summary plot, plot the
-	# estimated versus actual and the residual.  If needed, update the
-	# variance to reflect the new estimation. Reject the pixel with the
-	# largest residual larger then the threshold.  If no bad pixels are
-	# found, exit the loop.
+	# On each iteration, first check to make sure there is enough good pixels left
+	# to fit the data. Next, pull out the good pixels and pass them to the function.
+	# Calculate the residuals of each pixel, using either the difference between
+	# actual and estimated, or if sigma rejection is used, the difference and
+	# divide by the variance of the pixel. If the user requests a summary plot,
+	# plot the estimated variance vs actual and the residual. If needed, update the
+	# variance to reflect the new estimation. Reject the pixel with the largest
+	# residual larger than the threshold. If no bad pixels are found, exit the loop.
 
-	while rc.funcdone:
-		rc.funcdone = 0
-		rc.goodvals = rc.maskv[rc.xvals] == 1
-		if len(rc.goodvals) < rc.errorthresh:
-			rc.deg = 1
-			rc.fiteval = polyfunc(rc)
-			if rc.verbose > 2:
-				print("Too many pixels rejected" + rc.vectnum_s)
-			rc.errflag = 1
-			return rc.fiteval
-		rc.fitx = rc.xvals[rc.goodvals]  # xvals for good pixels
-		rc.fitdata = rc.datav[rc.fitx]  # data for good pixels
-		rc.fitvar = rc.varv[rc.fitx] # variance of good pixels
-		rc.fitmult = rc.multv[rc.fitx] # multiplier for good pixels
-		rc.deg = 0
-		rc.est = polyfunc(rc)
+	# Dynamically import the fitting function incase it is user-defined.
+	# Function name must be the same as the module name. (i.e. myfunc.myfunc())
+	fit_func = getattr(import_module("lib.fitting." + func), func)
 
-		if rc.absthresh:
-			rc.bcrv[rc.fitx] = abs(rc.fitdata / rc.fitmult - rc.est)
+	while funcdone:
+		funcdone = 0
+		goodvals = maskv[xvals] == 1
+
+		if len(goodvals) < errorthresh:
+
+			fiteval = fit_func(np.arange(nx), datav, varv, multv * maskv, True, coeffv, parm)
+
+			if verbose > 2:
+				print("Too many pixels rejected" + vectnum_s)
+			errflag = 1
+			return fiteval, errflag
+
+		fitx = xvals[goodvals]
+		fitdata = datav[fitx]
+		fitvar = varv[fitx]
+		fitmult = multv[fitx]
+
+		est, coeffv = fit_func(fitx, fitdata, fitvar, fitmult, False, coeffv, parm)
+		if "absthresh" == True:
+			crv[fitx] = abs(fitdata / fitmult - est)
 		else:
-			rc.bcrv[rc.fitx] = (rc.fitdata - rc.fitmult * rc.est) ** 2 / (
-						rc.fitvar > 1E-6)
+			crv[fitx] = (fitdata - fitmult * est) ** 2 / fitvar  # prevent divide by zero
+		badpix = np.where(crv[fitx] > vthresh)  # get bad locations
 
-		rc.badpix = np.where(rc.bcrv[rc.fitx] > rc.vthresh)
+		# TODO Procvect plotting
 
-		# TODO FUNC: procvect plotting
-
-		# if plottype[2] or (verbose eq 5) then begin
-		# device, window_state = ws
-		#    if not ws[13] then window, 13 else wset, 13
-		#    !p.multi = [0,1,2,1,1]
-		#    plot, fitx, fitdata, $
-		#         title='Actual vs. Fitted' + vectnum_s, $
-		#          ytitle='Data Values (if applicable / Spec)', $
-		#          xtitle='Pixel Locations', charsize=1.1
-		#    oplot, fitx, est * fitmult
-		# if keyword_set(absthresh) then begin
-		#   plot, fitx, crv[fitx], title='Residual', $
-		#     ytitle='Abs of Data - Expected', $
-		#     xtitle='Pixel Locations', charsize=1.1, $
-		#    yrange = [0, max([thresh, max(crv[fitx])])]
-		# oplot, fitx, fitdata/fitdata*thresh
-		# endif else begin
-		#  plot, fitx, sqrt(crv[fitx]), title='Residuals', $
-		#        ytitle='Sigma Difference of Data vs. Expected', $
-		#        xtitle='Pixel Locations', charsize=1.1
-		# endelse
-		# !p.multi = 0
-		#    wait, 0.01
+		# 	if plottype[2] or (verbose eq 5) then begin
+		#           device, window_state = ws
+		#           if not ws[13] then window, 13 else wset, 13
+		#           !p.multi = [0,1,2,1,1]
+		#           plot, fitx, fitdata, $
+		#             title='Actual vs. Fitted' + vectnum_s, $
+		#             ytitle='Data Values (if applicable / Spec)', $
+		#             xtitle='Pixel Locations', charsize=1.1
+		#           oplot, fitx, est * fitmult
+		#   if keyword_set(absthresh) then begin
+		#     plot, fitx, crv[fitx], title='Residual', $
+		#           ytitle='Abs of Data - Expected', $
+		#           xtitle='Pixel Locations', charsize=1.1, $
+		#           yrange = [0, max([thresh, max(crv[fitx])])]
+		#     oplot, fitx, fitdata/fitdata*thresh
+		#   endif else begin
+		#     plot, fitx, sqrt(crv[fitx]), title='Residuals', $
+		#           ytitle='Sigma Difference of Data vs. Expected', $
+		#           xtitle='Pixel Locations', charsize=1.1
+		#   endelse
+		#   !p.multi = 0
+		#   wait, 0.01
 		# endif
 
-		if rc.verbose == 5:
-			return
-		if not rc.noupdate: # FIXME: when no update is False, returns 0-dimensional index error
-			rc.varv[rc.fitx] = (abs(rc.fitmult * rc.est + rc.bgv[rc.fitx])) / rc.q + rc.v0 + rc.skyvarv[rc.fitx]
-		if np.any(rc.badpix):
-			rc.badx = rc.fitx[rc.badpix]
-			rc.maxpos = np.where(rc.bcrv[rc.badx] == max(rc.bcrv[rc.badx]))  # only eliminate max pixel
-			rc.maxx = rc.badx[rc.maxpos]
-			rc.funccount = rc.funccount + len(rc.maxx)
-			rc.maskv[rc.maxx] = 0
-			rc.funcdone = 1
+		if not noupdate:
+			varv[fitx] = (abs(fitmult * est + bgv[fitx])) / q + v0 + skyvarv[fitx]
+		if np.any(badpix):
+			badx = fitx[badpix]
+			maxpos = np.where(crv[badx] == max(crv[badx]))  # only eliminate max pixel
+			maxx = badx[maxpos]
+			funccount = funccount + len(maxx)  # add count for bad pixels
+			maskv[maxx] = 0  # mask bad pixel
+			funcdone = 1  # set so sequence loops
 
-	#TODO: There's a problem here. In the original procvect...
-	# Polyfunc is a standalone function that can take any arguments. In this version,
-	# i've got it setup for the fitx stuff from above. In the original at the end of procvect,
-	# it runs polyfunc again, but on the original data. Not sure how to fix this yet.
-	# For now, skip bg fitting.
-	rc.fiteval = polyfunc(rc)
+	fiteval, coeffv = fit_func(np.arange(nx), datav, varv, multv*maskv, True, coeffv, parm)
 
-	if not rc.noupdate:
-		rc.varv = (abs(rc.multv * rc.fiteval + rc.bgv)) / rc.q + rc.v0 + rc.skyvarv  # get var for all pixels
-	return rc.fiteval
+	if not noupdate:
+		varv = (abs(multv * fiteval + bgv)) / q + v0 + skyvarv # get var for all pixels
+
+	return fiteval, maskv, errflag, coeffv

@@ -23,107 +23,6 @@ from lib.procvect import procvect
 from lib.misc import plot_procvect
 from lib.misc import plot_fitbg
 
-def extrspec(rc):
-	# TODO DOCS: extrspec
-	"""
-
-	Optimally extracts spectra using weighted profiles.
-
-	Calling Example:
-
-	Inputs:
-		dataim: Sky-subtracted, processed image to extract spectrum from.
-				Horizontal is pixel position, vertical is wavelength, assuming no curvature.
-		profim: image of spatial profiles
-		varim:  variance image from processed image
-		v_0:    root(v_0) is squared readout noise in DN
-		q:      effective number of photons per DN
-		x1, x2: boundaries in x which contain spectrum (inclusive)
-	Optional Keywords:
-
-	Outputs:
-		Returns fopt, an array of optimally extracted spectra, and their variances.
-	History:
-
-	Created on 4/17/2021$
-	"""
-	# TODO FUNC: extrspec
-
-	ny = np.shape(rc.dataim)[0]
-	nx = np.shape(rc.dataim)[1]
-
-	if rc.verbose > 1:
-		print("Starting Optimal Extraction")
-
-	#TODO fix exceptions here
-	if rc.x1 < 0 or rc.x1 > rc.x2:
-		raise ParameterException("Exception here.")
-	if rc.x2 > nx -1 or rc.x2 < rc.x2:
-		raise ParameterException("Exception here.")
-	#str += (size(varim ))[1] ne nx || (size(varim ))[2] ne ny ? "varim "  : ""
-	#str += (size(profim))[1] ne nx || (size(profim))[2] ne ny ? "profim " : ""
-	#str += (size(inmask))[1] ne nx || (size(inmask))[2] ne ny ? "inmask " : ""
-	#str += (size(bgim  ))[1] ne nx || (size(bgim  ))[2] ne ny ? "bgim "   : ""
-	#str += (size(skyvar))[1] ne nx || (size(skyvar))[2] ne ny ? "skyvar " : ""
-	#str += 4 ne n_elements(plottype)                          ? "plottype" : ""
-
-	exres = np.zeros((nx, ny))
-	exmask = np.ones((nx, ny))
-	crv = np.zeros((rc.x2-rc.x1+1))
-	optspec = np.zeros((ny))
-	opvar = np.zeros((ny))
-	errvect = np.ones((ny))
-	func = "extractfunc"
-
-	#LOOP THRROUGH ROWS
-	#Cut up the images into rows and pass each to procvect.  Tells
-	#procvect to use extractfunc.pro which returns the optimal
-	#extraction.  It also return in parm the variance of the extraction.
-	#Procvect will handle the sigma rejection.
-
-	for i in range(ny):
-		varv = rc.varim[i, rc.x1:rc.x2]
-		maskv = rc.inmask[i, rc.x1:rc.x2]
-		datav = rc.dataim[i, rc.x1:rc.x2]
-		multv = rc.profim[i, rc.x1:rc.x2]
-		bgv = rc.bgim[i, rc.x1:rc.x2]
-		skyvarv = rc.skyvar[i, rc.x1:rc.x2]
-
-	#TODO Plotting
-	#if (i eq gotovect) then verbose = 5
-    #if plottype[1] or verbose eq 5 then begin
-    #device, window_state = ws   ; get the present window state
-    #if not ws[12] then window, 12 else wset, 12 ; open window 12
-    #!p.multi = [0, 2, 3, 1, 1]  ; fit all six inside
-    #!p.charsize = 2.0
-    #!x.margin = [8, 2]
-    #!y.margin = [2, 2]
-    #plot, datav,   title = 'Data Vector for Extraction', /ystyle
-    #plot, multv,   title = 'Profile', /ystyle
-    #plot, maskv,   title = 'Input Mask', yrange = [-0.1, 1.1]
-    #plot, varv,    title = 'Variance', /ystyle
-    #plot, skyvarv, title = 'Sky variance', /ystyle
-    #plot, bgv,     title = 'Background', /ystyle
-    #!p.multi = 0
-    #!p.charsize = 1.0
-    #!x.margin = [10, 3]
-    #!y.margin = [4, 2]
-    #wait, 0.01                  ; pause to allow user to view
-    #endif
-
-		rc.optspec[i] = procvect(rc)
-
-		if (rc.errflag):
-			errvect[i] = 0
-		opvar[i] = parm
-		exmask[i, rc.x1:rc.x2] = maskv
-		varim[i, rc.x1:rc.x2] = varv
-		exres[i, rc.x1:rc.x2] = crv*maskv
-
-
-	return
-
-
 def fitprof(rc):
 	"""
 	Creates an image of normalized spatial profiles, enforces positivity, normalization.
@@ -338,114 +237,101 @@ def fitprof(rc):
 
 	return
 
-
-def fitbg(rc):
-	# TODO DOCS: fitbg
+def extrspec(rc):
+	# TODO DOCS: extrspec
 	"""
-	Creates a sky background image from a data image, interpolated across the spectrum, to create an image of sky lines only.
+
+	Optimally extracts spectra using weighted profiles.
 
 	Calling Example:
 
 	Inputs:
+		dataim: Sky-subtracted, processed image to extract spectrum from.
+				Horizontal is pixel position, vertical is wavelength, assuming no curvature.
+		profim: image of spatial profiles
+		varim:  variance image from processed image
+		v_0:    root(v_0) is squared readout noise in DN
+		q:      effective number of photons per DN
+		x1, x2: boundaries in x which contain spectrum (inclusive)
+	Optional Keywords:
 
 	Outputs:
-
+		Returns fopt, an array of optimally extracted spectra, and their variances.
 	History:
 
 	Created on 4/17/2021$
 	"""
-	# Fill inputs and verify
-	dims = np.shape(rc.data)
+	# TODO FUNC: extrspec
 
-	nx = dims[1]
-	ny = dims[0]
+	ny = np.shape(rc.dataim)[0]
+	nx = np.shape(rc.dataim)[1]
 
 	if rc.verbose > 1:
-		print("Starting background fitting")
+		print("Starting Optimal Extraction")
 
-	if not rc.inmask:
-		rc.inmask = np.ones((nx, ny), np.byte)
-	if not rc.varim:
-		rc.varim = np.ones((nx, ny), np.single)
-	if not rc.skyvar:
-		rc.skyvar = np.zeros((nx, ny), np.single)
+	# TODO fix exceptions here
+	if rc.x1 < 0 or rc.x1 > rc.x2:
+		raise ParameterException("Exception here.")
+	if rc.x2 > nx - 1 or rc.x2 < rc.x2:
+		raise ParameterException("Exception here.")
+	# str += (size(varim ))[1] ne nx || (size(varim ))[2] ne ny ? "varim "  : ""
+	# str += (size(profim))[1] ne nx || (size(profim))[2] ne ny ? "profim " : ""
+	# str += (size(inmask))[1] ne nx || (size(inmask))[2] ne ny ? "inmask " : ""
+	# str += (size(bgim  ))[1] ne nx || (size(bgim  ))[2] ne ny ? "bgim "   : ""
+	# str += (size(skyvar))[1] ne nx || (size(skyvar))[2] ne ny ? "skyvar " : ""
+	# str += 4 ne n_elements(plottype)                          ? "plottype" : ""
 
-	if (rc.x2 > nx - 1) or (rc.x2 < rc.x1):
-		raise ParameterException("x2 cannot be greater than nx-1 or greater than x1.")
-	if (np.shape(rc.varim)[0] != nx) or (np.shape(rc.varim)[1] != ny):
-		raise ParameterException("Dimensions of varim do not match dataim.")
-	if (np.shape(rc.inmask)[0] != nx) or (np.shape(rc.inmask)[1] != ny):
-		raise ParameterException("Dimensions of inmask do not match dataim.")
-	if (np.shape(rc.skyvar)[0] != nx) or (np.shape(rc.skyvar)[1] != ny):
-		raise ParameterException("Dimensions of skyvar do not match dataim.")
+	exres = np.zeros((nx, ny))
+	exmask = np.ones((nx, ny))
+	crv = np.zeros((rc.x2 - rc.x1 + 1))
+	optspec = np.zeros((ny))
+	opvar = np.zeros((ny))
+	errvect = np.ones((ny))
+	func = "extractfunc"
 
-	rc.xvals1 = np.arange(rc.x1)
-	rc.xvals2 = np.arange(nx - 1 - rc.x2) + rc.x2 + 1
-	rc.xvals = np.array([*rc.xvals1, *rc.xvals2])
-
-	# Subtract bias
-	if rc.nobgfit:
-		rc.bgim = np.ones((nx, ny)) * np.median(rc.data[:, rc.xvals])
-		return rc.bgim
-
-	# Prepare for row by row fitting
-	rc.yvals = np.arange(ny)
-	rc.bgim = rc.data
-	rc.bgres = np.zeros((nx, ny), np.single)
-	rc.bgmask = np.ones((nx, ny), np.byte)
-	rc.func = "polyfunc"
-	rc.berrvect = np.ones(ny)
-	rc.bgim[:, rc.x1:rc.x2] = 0
-	rc.allx = np.arange(nx)
-
-	# FIT BY ROW
-	# Cut up the data into rows and pass each to procvect. Tell procvect
-	# to use polyfunc to estimate the background. Procvect will handle
-	# bad pixel rejection, and return the polynomial over all x
+	# LOOP THRROUGH ROWS
+	# Cut up the images into rows and pass each to procvect.  Tells
+	# procvect to use extractfunc.pro which returns the optimal
+	# extraction.  It also return in parm the variance of the extraction.
+	# Procvect will handle the sigma rejection.
 
 	for i in range(ny):
-		rc.datav = rc.data[i, :]
-		rc.maskv = rc.inmask[i,:]
-		rc.varv = rc.varim[i,:]
-		rc.bcrv = rc.bgres[i,:]
-		rc.skyvarv = rc.skyvar[i,:]
-		if (sum(rc.maskv[0:rc.x1]) < 2) or (sum(rc.maskv[rc.x2 + 1:nx]) < 2):
-			rc.parm = 0
-		else:
-			rc.parm = rc.bgdeg
-		if i == rc.bgotovect:
-			rc.verbose = 5
+		varv = rc.varim[i, rc.x1:rc.x2]
+		maskv = rc.inmask[i, rc.x1:rc.x2]
+		datav = rc.dataim[i, rc.x1:rc.x2]
+		multv = rc.profim[i, rc.x1:rc.x2]
+		bgv = rc.bgim[i, rc.x1:rc.x2]
+		skyvarv = rc.skyvar[i, rc.x1:rc.x2]
 
-
-		plot_fitbg(rc.datav, rc.maskv, rc.varv, rc.skyvarv, rc.output_dir)
-
-		if rc.verbose == 5:
-			return
-
-		rc.vectnum = i
-
-		rc.bgim[i, :] = procvect(rc)
-
-		if rc.errflag:
-			rc.berrvect[i] = 0
-
-		# TODO PLOTTING
-
-		if rc.plottype == 3:
-
-			sy1 = max((i - 10), 0)
-			sy2 = min((i + 10), ny - 1)
-
-			plot_procvect(rc.bgim, rc.yvals, rc.allx, sy1, sy2, i)
-		# shade_surf, bgim[*, sy1:sy2], allx, yvals[sy1:sy2], charsize = 3,  $
-		# title = "Background after # " + strtrim(i, 1), $
-		# xtitle = "X pixel location", $
-		# ytitle = "Y (Prefit and Postfit)"
-		# wait, 0.001
+		# TODO Plotting
+		# if (i eq gotovect) then verbose = 5
+		# if plottype[1] or verbose eq 5 then begin
+		# device, window_state = ws   ; get the present window state
+		# if not ws[12] then window, 12 else wset, 12 ; open window 12
+		# !p.multi = [0, 2, 3, 1, 1]  ; fit all six inside
+		# !p.charsize = 2.0
+		# !x.margin = [8, 2]
+		# !y.margin = [2, 2]
+		# plot, datav,   title = 'Data Vector for Extraction', /ystyle
+		# plot, multv,   title = 'Profile', /ystyle
+		# plot, maskv,   title = 'Input Mask', yrange = [-0.1, 1.1]
+		# plot, varv,    title = 'Variance', /ystyle
+		# plot, skyvarv, title = 'Sky variance', /ystyle
+		# plot, bgv,     title = 'Background', /ystyle
+		# !p.multi = 0
+		# !p.charsize = 1.0
+		# !x.margin = [10, 3]
+		# !y.margin = [4, 2]
+		# wait, 0.01                  ; pause to allow user to view
 		# endif
 
-		rc.varim[i, rc.xvals] = rc.varv[rc.xvals]
-		rc.bgmask[i, :] = rc.maskv
-		rc.bgres[i, :] = rc.bcrv * rc.maskv
+		rc.optspec[i] = procvect(rc)
 
-	return rc.bgim
+		if (rc.errflag):
+			errvect[i] = 0
+		opvar[i] = parm
+		exmask[i, rc.x1:rc.x2] = maskv
+		varim[i, rc.x1:rc.x2] = varv
+		exres[i, rc.x1:rc.x2] = crv * maskv
+
+	return

@@ -72,7 +72,7 @@ def adjgauss(rc):
 		adjx = rc.adjparms.adjx
 		nxo = np.shape(origx)[2]
 		outarr = np.zeros((nimage, nxo, ny))
-		if level <= 2:
+		if rc.adjoptions.level <= 2:
 			fitpoly = False
 			fitspline = True
 		else:

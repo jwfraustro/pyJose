@@ -14,109 +14,10 @@ Created on 5/25/2021$
 """
 
 from lib.misc import rebin_nd
+from lib.vectfit import centermass, gaussfunc
+from lib import procvect
 from lib.excep import *
 import numpy as np
-
-def findshift(rc):
-	# TODO DOCS: findshift
-	"""
-	Finds the shift in the trace for each row of an input vector.
-
-	Calling Example:
-
-	Inputs:
-
-	Outputs:
-
-	History:
-
-	Created on 4/17/2021$
-	"""
-	#TODO FUNC: findshift
-	nx = np.shape(rc.dataim)[1]
-	ny = np.shape(rc.dataim)[0]
-
-	# TODO Defaults and checks
-
-	# ; Defaults
-	# if not keyword_defined(gaussth ) then gaussth  = 0.03
-	# if not keyword_defined(shiftth ) then shiftth  = 0.5
-	# if not keyword_defined(widthth ) then widthth  = 0.5
-	# if not keyword_defined(tracedeg) then tracedeg = 4
-	# if not keyword_defined(verbose ) then verbose  = 0
-	# if not keyword_defined(plottype) then plottype = [0, 0, 0, 0]
-	# if not keyword_defined(varim   ) then varim    = abs(dataim)
-	# if not keyword_defined(inmask  ) then inmask   = bytarr(nx, ny)+1
-	# if not keyword_defined(spec    ) then spec     = total(dataim, 1)
-	# if not keyword_defined(x1      ) then x1       = 0
-	# if not keyword_defined(x2      ) then x2       = nx-1
-	# if not keyword_defined(gotovect) then gotovect = -1
-	#
-	# ; Checks
-	# str = ""
-	# str += n_elements(spec) ne ny                             ? "spec "   : ""
-	# str += x1 lt 0 || x1 gt x2                                ? "x1 "     : ""
-	# str += x2 gt nx - 1 || x2 lt x1                           ? "x2 "     : ""
-	# str += (size(varim ))[1] ne nx || (size(varim ))[2] ne ny ? "varim "  : ""
-	# str += (size(inmask))[1] ne nx || (size(inmask))[2] ne ny ? "inmask " : ""
-	# str += 4 ne n_elements(plottype)                          ? "plottype" : ""
-	# if str ne "" then message, "Poorly formed inputs: " + str
-
-	shiftv = np.zeros(ny)   # the center of each row's profile
-	widthv = np.zeros(ny)   # the width of each row's profile
-	height = np.zeros(ny)   # the height of each row's profile
-	xrange = np.arange(rc.x2-rc.x1+1) + rc.x1 # the range of pixel values to examine
-	shmask = np.ones(ny)
-	tracemask = rc.inmask
-
-	for i in range(ny):
-		mainmv = rc.inmask[i, rc.x1:rc.x2]
-		datav = rc.dataim[i, rc.x1:rc.x2] > 0
-		varv = rc.varim[i, rc.x1:rc.x2] * mainmv
-		specv = rc.spec[i]
-
-		if i == rc.gotovect:
-			rc.verbose = 5
-		if rc.centroid:
-			func = 'centermass'
-			shiftv[i] = centermass(rc)
-			widthv[i] = 1
-			if rc.verbose == 5:
-				input("Stopping at center mass. Press enter to continue.")
-		else:
-			# TODO findshift plotting
-			# if plottype[1] or (verbose eq 5) then begin
-            #     device, window_state = ws
-            #     if not ws[12] then window, 12 else wset, 12
-            #     !p.multi = [0, 1, 2, 1, 1]
-            #     plot, datav,   title = 'Data Vector for Finding Center', /ystyle
-            #     plot, mainmv,   title = 'Input Mask', yrange = [-0.1, 1.1]
-            #     !p.multi = 0
-            #     wait, 0.01
-            #     endif
-			if rc.verbose == 5:
-				input("Stopping at gassfunc")
-			func = 'gaussfunc'
-			parm = 1
-			foo = procvect(rc)
-			tracemask[i, rc.x1:rc.x2] = mainmv
-			foo = gaussfunc(rc)
-			if rc.coeff[0] == 0:
-				shmask[i] = 0
-			else:
-				shmask[i] = 1
-				shiftv[i] = rc.coeff[1]
-				widthv[i] = rc.coeff[2]
-				height[i] = rc.coeff[0]
-
-	varv = np.zeros(ny) + (1.0/10)**2
-	func = 'polyfunc'
-	parm = rc.tracedeg
-
-	#TODO finish findshift
-
-	return
-
 
 def sampleshift(rc):
 	# TODO DOCS: sampleshift
@@ -194,7 +95,7 @@ def sampleshift(rc):
 	#   foo = np.amin(1. / dif, lmap, dimension=3, subscript_max=hmap)
 		lweight = dif[rc.hmap] / (dif[rc.hmap] - dif[rc.lmap]) # the weight
 		lmap = rc.lmap / nxo             # the map of old pixels to new
-		hmap = hmap / nxo 
+		hmap = hmap / nxo
 		mdata = rc.data[hmap] * (1 - lweight)
 		mdata += rc.data[lmap] * lweight
 	#   mdata[where(1 - lweight gt 1)] = data[hmap[where(1 - lweight gt 1)]]

@@ -213,12 +213,15 @@ for i = 0, ny-1 do begin
     wait, 0.01
   endif
   if (verbose eq 5) then stop
+
   bgim[*, i] = procvect(datav, varv = varv, maskv = maskv, crv = bcrv, $
                         thresh = bthresh, xvals = xvals, errflag = errflag, $
                         Q = Q, v0 = v0, skyvarv = skyvarv, verbose = verbose, $
                         vectnum = i, func = func, parm = parm, bpct = bpct, $
                         plottype = plottype)
+
   if (errflag) then errvect[i] = 0 ; there was a problem fitting
+
   if plottype[3] then begin
     device, window_state = ws
     if not ws[14] then window, 14 else wset, 14

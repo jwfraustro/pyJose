@@ -1,22 +1,23 @@
 data_file: 'test2obj.fits'    # File name of processed image (raw-sky)/flat for IR, (raw-bias)/flat for optical
 var: null     # Variance image of data in DN^2 (i.e., data/q+rn^2)
-rn: 0.0      # Read noise of data frame in DN
+rn: 10.0      # Read noise of data frame in DN
 q: 10.0       # Effective number of photos per DN for data frame
-x1: 255      # Start boundary in x of spectrum (inclusive)
-x2: 285      # End Boundary in x of spectrum (inclusive)
+x1: 263      # Start boundary in x of spectrum (inclusive)
+x2: 280      # End Boundary in x of spectrum (inclusive)
 output_dir: 'output'
 
 # GENERAL
 skyvar: null      # Variance image of sky (default 0s)
 inmask: null      # User input mask with good pixels=1, bad=0 (default 1s)
-bpct: null        # Set the percentage of bad pixels before kicking out (0.5)
+bpct: 0.5        # Set the percentage of bad pixels before kicking out (0.5)
 integrate: null   # Set to integrate over bad pixels when calculating spec for use in the profile fitting
 varim: null
 
 # BACKGROUND FITTING
-nobgfit: True     # Set to not fit the background
-bthresh: null     # sigma threshold for cosmic ray rejection for bg, (3)
-bgdeg: null       # degree of polynomial fit for interpolation in fitbg (1)
+func: "polyfunc"
+nobgfit: False     # Set to not fit the background
+bthresh: 3     # sigma threshold for cosmic ray rejection for bg, (3)
+bgdeg: 2       # degree of polynomial fit for interpolation in fitbg (1)
 absthresh: False
 eval: False
 noupdate: True
@@ -67,7 +68,7 @@ verbose: 2
   #   3 - output every warning
   #   4 - plot how the data are being used
   #   5 - stop after each iteration
-plottype: 5
+plottype: 4
   # Set to the type of plot output to the screen
   #   0 - No Plots
   #   1 - Show a summary of all processed frames
@@ -76,9 +77,7 @@ plottype: 5
   #   4 - Use shade_surf to show the fitted and raw data
   #   5 - Show all plots
 
-bgotovect: null # fitbg will halt execution at this row
-pgotovect: null # fitprof will halt execution at this row
-egotovect: null # specext will halt execution at this row
+gotovect: null # execution will stop at this row
 debughead: null # Text to place at the top of the processed array plot
 
 # Output Options
@@ -91,7 +90,7 @@ berrvect: null  # Mask of rows where iteration stopped during fitbg
 # Standard Extraction
 stdspec: null   # Standard spectrum
 stdvar: null    # Returns variance of standard spectrum
-adjspec: False  # Set to linearly interpolate the data, then extract the standard spectrum.
+adjspec: True  # Set to linearly interpolate the data, then extract the standard spectrum.
                 # Only useful if input mask has bad pixels
 
 # Profile Fitting:

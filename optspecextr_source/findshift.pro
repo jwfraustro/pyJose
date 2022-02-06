@@ -197,7 +197,9 @@ for i = 0,  ny-1 do begin
       !p.multi = 0
       wait, 0.01
     endif
+
     if (verbose eq 5) then stop
+
     func = "gaussfunc"
     parm = 1
     foo = procvect(datav, varv = varv, /noupdate, thresh = gaussth, $
