@@ -1,4 +1,4 @@
-#+title: PROSE
+#+title: PyJOSE
 #+subtitle: Pythonic Reimplementation of the Optimal Spectrum Extraction Package for IDL
 #+options: toc:l
 * Table of Contents :toc:
@@ -11,7 +11,7 @@
 - [[#license][License]]
 
 * Intro
-PROSE is an implementation of the original [[https://physics.ucf.edu/~jh/ast/software/optspecextr-0.3.1/][JOSE]] written by John Dermody and Joe Harrington in 2004. The packag extracts a spectrum from a reduced spectrograph dataframe using the optimal algorithm as described in [[https://physics.ucf.edu/~jh/ast/software/optspecextr-0.3.1/doc/horne-1986-apj-optspecext.pdf]["An Optimal Extraction Algorithm for CCD Spectroscopy" (K. Horne, 1986, PASP 98:609-617)]].
+PyJOSE is an implementation of the original [[https://physics.ucf.edu/~jh/ast/software/optspecextr-0.3.1/][JOSE]] written by John Dermody and Joe Harrington in 2004. The packag extracts a spectrum from a reduced spectrograph dataframe using the optimal algorithm as described in [[https://physics.ucf.edu/~jh/ast/software/optspecextr-0.3.1/doc/horne-1986-apj-optspecext.pdf]["An Optimal Extraction Algorithm for CCD Spectroscopy" (K. Horne, 1986, PASP 98:609-617)]].
 * Features
 * Prerequisites
 + Git
